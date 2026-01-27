@@ -1,0 +1,911 @@
+@extends('layout')
+
+@section('title', $detail->name . ' - Детали')
+
+@section('content')
+<div class="detail-page-wrapper">
+    <!-- Header Section -->
+    <div class="detail-header">
+        <a href="{{ route('details.index') }}" class="btn-back" title="Вернуться к деталям">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+        </a>
+        <div class="detail-header-content">
+            <div class="detail-header-title">
+                <h1 class="detail-title">{{ $detail->name }}</h1>
+                @if($detail->category)
+                    <span class="type-badge">{{ $detail->category->name }}</span>
+                @endif
+            </div>
+            <p class="detail-code">{{ $detail->id }}</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="detail-grid">
+        <!-- Left Column -->
+        <div class="detail-left">
+            <!-- Source Card -->
+            <div class="card detail-card">
+                <div class="card-content">
+                    <div class="source-icon-container">
+                        <svg class="source-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 6v6l4 2"></path>
+                        </svg>
+                    </div>
+                    <div class="source-content">
+                        <h3 class="card-title">Источник</h3>
+                        <div class="source-badge">
+                            <svg class="source-badge-icon" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            </svg>
+                            <span>Собственное производство</span>
+                        </div>
+                        <p class="source-description">
+                            Деталь производится на собственных мощностях. Полный контроль над производственным процессом и сроками изготовления.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Characteristics Card -->
+            <div class="card detail-card">
+                <div class="card-header-with-icon">
+                    <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    <h3 class="card-title">Характеристики</h3>
+                </div>
+                <div class="characteristics-grid">
+                    <div class="characteristic-item">
+                        <span class="char-label">Размеры</span>
+                        <span class="char-value">{{ $detail->width }}x{{ $detail->height }}x{{ $detail->depth }}мм</span>
+                    </div>
+                    <div class="characteristic-item">
+                        <span class="char-label">Материал</span>
+                        <span class="char-value">{{ $detail->material ?? 'Сталь холоднокатаная' }}</span>
+                    </div>
+                    <div class="characteristic-item">
+                        <span class="char-label">Вес</span>
+                        <span class="char-value">{{ $detail->weight }} кг</span>
+                    </div>
+                    <div class="characteristic-item">
+                        <span class="char-label">Единица измерения</span>
+                        <span class="char-value">{{ $detail->scu ?? 'шт' }}</span>
+                    </div>
+                    <div class="characteristic-item">
+                        <span class="char-label">Категория</span>
+                        <span class="char-value">{{ $detail->category->name ?? 'Общее' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Components Table -->
+            <div class="card detail-card">
+                <div class="card-header-with-count">
+                    <div class="card-header-left">
+                        <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
+                        </svg>
+                        <h3 class="card-title">Используется в компонентах</h3>
+                    </div>
+                    <span class="component-count">({{ $detail->places->count() }})</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Тип</th>
+                                <th>Компонент</th>
+                                <th class="text-center">Кол-во на 1 шт</th>
+                                <th class="text-center">Остаток компонентов</th>
+                                <th class="text-center">Всего требуется</th>
+                                <th class="text-right">Цена компонента</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($detail->places as $place)
+                                <tr>
+                                    <td>
+                                        <span class="type-badge type-badge-side">Боковая панель</span>
+                                    </td>
+                                    <td>
+                                        <a href="/places/{{ $place->place_id }}" class="component-link">
+                                            <span class="component-name">{{ $place->name }}</span>
+                                            <span class="component-code">{{ $place->place_id }}</span>
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="quantity">{{ $place->pivot->quantity }} шт</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="stock">{{ $place->stock->sum('quantity') ?? 0 }} шт</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="total">{{ $place->pivot->quantity * 2 }} шт</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span class="price">3 200 ₽</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        Деталь не используется ни в одном компоненте
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Stock Analysis Card -->
+            <div class="card detail-card">
+                <div class="card-header-left">
+                    <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    <h3 class="card-title">Анализ остатков</h3>
+                </div>
+                
+                <div class="stock-analysis">
+                    <p class="text-muted">Данные об остатках загружаются из таблицы мест, использующих эту деталь</p>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="detail-right">
+            <!-- Stock Card -->
+            <div class="card detail-card">
+                <div class="card-header-left">
+                    <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 12a9 9 0 1 0 18 0A9 9 0 0 0 3 12Z"/>
+                    </svg>
+                    <h3 class="card-title">Остатки</h3>
+                </div>
+                <div class="stock-info">
+                    <p class="text-muted">Остатки управляются на уровне мест</p>
+                </div>
+            </div>
+
+            <!-- Cost Card -->
+            <div class="card detail-card">
+                <div class="card-header-left">
+                    <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.5 1.5H5.75A2.25 2.25 0 0 0 3.5 3.75v12.5A2.25 2.25 0 0 0 5.75 18.5h8.5a2.25 2.25 0 0 0 2.25-2.25V6.5m-12-5v5m8-5v5"/>
+                    </svg>
+                    <h3 class="card-title">Стоимость</h3>
+                </div>
+                <div class="cost-info">
+                    <div class="cost-item">
+                        <span class="cost-label">Цена за шт:</span>
+                        <span class="cost-value">{{ $detail->price ?? 420 }} ₽</span>
+                    </div>
+                    <div class="cost-item cost-item-divider">
+                        <span class="cost-label">Цена за кг:</span>
+                        <span class="cost-value">{{ $detail->price_per_kg ?? 350 }},00 ₽</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card detail-card">
+                <div class="card-header-left">
+                    <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    <h3 class="card-title">Статистика</h3>
+                </div>
+                <div class="stats-list">
+                    <div class="stat-item">
+                        <span class="stat-label">Компонентов:</span>
+                        <span class="stat-value">{{ $detail->places->count() }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Используется в местах:</span>
+                        <span class="stat-value">{{ $detail->places->count() }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Дата создания:</span>
+                        <span class="stat-value">{{ $detail->created_at->format('Y-m-d') }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Источник:</span>
+                        <span class="stat-value">{{ $detail->category->name ?? 'Свое пр-во' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Card -->
+            <div class="card detail-card">
+                <h3 class="card-title">Визуализация</h3>
+                <div class="visualization-container">
+                    <div class="visualization-item">
+                        <div class="visualization-icon-box">
+                            <svg class="visualization-icon" viewBox="0 0 64 64" fill="currentColor">
+                                <rect x="10" y="10" width="44" height="44" rx="2" fill="currentColor" opacity="0.2"/>
+                                <path d="M32 20c-6.6 0-12 5.4-12 12s5.4 12 12 12 12-5.4 12-12-5.4-12-12-12m0 20c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+                            </svg>
+                        </div>
+                        <span class="visualization-label">{{ $detail->category->name ?? 'Металл' }}</span>
+                        <span class="visualization-unit">{{ $detail->scu ?? 'шт' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Detail Page Styles */
+    .detail-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+    }
+
+    /* Header Styles */
+    .detail-header {
+        display: flex;
+        gap: 16px;
+        height: 60px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .btn-back {
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        background: white;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
+        transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+        background: #f9fafb;
+        color: #374151;
+    }
+
+    .btn-back svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .detail-header-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .detail-header-title {
+        display: flex;
+        gap: 12px;
+        height: 32px;
+        align-items: center;
+    }
+
+    .detail-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #101828;
+        margin: 0;
+        line-height: 32px;
+    }
+
+    .type-badge {
+        background-color: #f3f4f6;
+        color: #364153;
+        padding: 4px 12px;
+        border-radius: 33554400px;
+        font-size: 12px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .type-badge-side {
+        background-color: #dcfce7;
+        color: #008236;
+    }
+
+    .detail-code {
+        font-family: 'Consolas', monospace;
+        font-size: 14px;
+        color: #6a7282;
+        margin: 0;
+        line-height: 20px;
+    }
+
+    /* Grid Layout */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 389px;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .detail-left {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .detail-right {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* Card Styles */
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px rgba(0,0,0,0.1);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .detail-card {
+        width: 100%;
+    }
+
+    .card-content {
+        display: flex;
+        gap: 16px;
+    }
+
+    .source-icon-container {
+        background: #dbeafe;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+    }
+
+    .source-icon {
+        width: 24px;
+        height: 24px;
+        color: #0284c7;
+    }
+
+    .source-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .card-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #101828;
+        margin: 0;
+        line-height: 24px;
+    }
+
+    .source-badge {
+        background: #eff6ff;
+        border-radius: 10px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 8px 12px;
+        width: fit-content;
+    }
+
+    .source-badge-icon {
+        width: 16px;
+        height: 16px;
+        color: #1447e6;
+    }
+
+    .source-badge span {
+        font-size: 14px;
+        color: #1447e6;
+        font-weight: normal;
+    }
+
+    .source-description {
+        font-size: 14px;
+        color: #4a5565;
+        line-height: 20px;
+        margin: 0;
+    }
+
+    /* Header with Icon */
+    .card-header-with-icon,
+    .card-header-with-count,
+    .card-header-left {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .card-header-with-count {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .card-icon {
+        width: 20px;
+        height: 20px;
+        color: #6b7280;
+    }
+
+    .component-count {
+        font-size: 14px;
+        color: #6a7282;
+        line-height: 20px;
+    }
+
+    /* Characteristics Grid */
+    .characteristics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .characteristic-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .char-label {
+        font-size: 12px;
+        color: #6a7282;
+        text-transform: uppercase;
+        line-height: 16px;
+    }
+
+    .char-value {
+        font-size: 14px;
+        color: #101828;
+        line-height: 20px;
+    }
+
+    /* Table Styles */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .detail-table,
+    .components-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .detail-table thead,
+    .components-table thead {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-table th,
+    .components-table th {
+        padding: 16px 24px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6a7282;
+        text-transform: uppercase;
+        line-height: 16px;
+    }
+
+    .detail-table th.text-center,
+    .components-table th.text-center {
+        text-align: center;
+    }
+
+    .detail-table th.text-right,
+    .components-table th.text-right {
+        text-align: right;
+        padding-right: 24px;
+    }
+
+    .detail-table tbody tr,
+    .components-table tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-table td,
+    .components-table td {
+        padding: 24px;
+        font-size: 14px;
+        color: #101828;
+        line-height: 20px;
+    }
+
+    .detail-table td.text-center,
+    .components-table td.text-center {
+        text-align: center;
+    }
+
+    .detail-table td.text-right,
+    .components-table td.text-right {
+        text-align: right;
+    }
+
+    .component-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-decoration: none;
+    }
+
+    .component-name {
+        font-size: 14px;
+        color: #101828;
+        line-height: 20px;
+    }
+
+    .component-code {
+        font-family: 'Consolas', monospace;
+        font-size: 12px;
+        color: #6a7282;
+        line-height: 16px;
+    }
+
+    .component-link:hover .component-name {
+        color: #3b82f6;
+    }
+
+    /* Stock Analysis */
+    .stock-analysis {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .stock-metric {
+        flex: 1;
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .stock-metric-reserved {
+        background: #fff7ed;
+    }
+
+    .stock-metric-available {
+        background: #fef2f2;
+    }
+
+    .stock-label {
+        font-size: 12px;
+        line-height: 16px;
+        color: #4a5565;
+    }
+
+    .stock-metric-reserved .stock-label {
+        color: #f54900;
+    }
+
+    .stock-metric-available .stock-label {
+        color: #e7000b;
+    }
+
+    .stock-value {
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 32px;
+        color: #101828;
+    }
+
+    .stock-metric-reserved .stock-value {
+        color: #ca3500;
+    }
+
+    .stock-metric-available .stock-value {
+        color: #c10007;
+    }
+
+    .stock-unit {
+        font-size: 12px;
+        line-height: 16px;
+        color: #6a7282;
+    }
+
+    .stock-metric-reserved .stock-unit {
+        color: #f54900;
+    }
+
+    .stock-metric-available .stock-unit {
+        color: #e7000b;
+    }
+
+    /* Alert Critical */
+    .alert-critical {
+        background: #fef2f2;
+        border: 1px solid #ffc9c9;
+        border-radius: 10px;
+        padding: 16px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .alert-icon {
+        width: 20px;
+        height: 20px;
+        color: #c10007;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .alert-title {
+        font-size: 16px;
+        font-weight: normal;
+        color: #82181a;
+        line-height: 24px;
+        margin: 0;
+    }
+
+    .alert-text {
+        font-size: 14px;
+        color: #c10007;
+        line-height: 20px;
+        margin: 0;
+    }
+
+    /* Right Column - Stock Info */
+    .stock-info {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .stock-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .stock-item-divider {
+        border-top: 1px solid #e5e7eb;
+        padding-top: 17px;
+    }
+
+    .stock-item-label {
+        font-size: 14px;
+        color: #4a5565;
+        line-height: 20px;
+    }
+
+    .stock-item-value {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+    }
+
+    .value-number {
+        font-size: 30px;
+        font-weight: bold;
+        color: #101828;
+        line-height: 36px;
+    }
+
+    .value-unit {
+        font-size: 14px;
+        color: #6a7282;
+        line-height: 20px;
+    }
+
+    .stock-value-price .value-number {
+        color: #155dfc;
+        font-size: 24px;
+        line-height: 32px;
+    }
+
+    /* Cost Info */
+    .cost-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 28px;
+    }
+
+    .cost-item-divider {
+        border-top: 1px solid #e5e7eb;
+        padding-top: 1px;
+    }
+
+    .cost-label {
+        font-size: 14px;
+        color: #4a5565;
+        line-height: 20px;
+    }
+
+    .cost-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #101828;
+        line-height: 28px;
+    }
+
+    /* Stats List */
+    .stats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 20px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #4a5565;
+        line-height: 20px;
+    }
+
+    .stat-value {
+        font-size: 14px;
+        color: #101828;
+        line-height: 20px;
+    }
+
+    /* Visualization */
+    .visualization-container {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 40px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 232px;
+    }
+
+    .visualization-item {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+        width: 128px;
+    }
+
+    .visualization-icon-box {
+        background: #f3f4f6;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 128px;
+        height: 128px;
+    }
+
+    .visualization-icon {
+        width: 64px;
+        height: 64px;
+    }
+
+    .visualization-label {
+        font-size: 14px;
+        color: #101828;
+        line-height: 20px;
+        text-align: center;
+    }
+
+    .visualization-unit {
+        font-size: 12px;
+        color: #6a7282;
+        line-height: 16px;
+        text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-left,
+        .detail-right {
+            width: 100%;
+        }
+
+        .characteristics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stock-analysis {
+            flex-direction: column;
+        }
+
+        .detail-table,
+        .components-table {
+            font-size: 12px;
+        }
+
+        .detail-table td,
+        .components-table td,
+        .detail-table th,
+        .components-table th {
+            padding: 12px 16px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            flex-direction: column;
+            height: auto;
+            gap: 12px;
+        }
+
+        .detail-grid {
+            gap: 16px;
+        }
+
+        .characteristics-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            padding: 16px;
+        }
+
+        .detail-table thead,
+        .components-table thead {
+            display: none;
+        }
+
+        .detail-table tbody,
+        .components-table tbody,
+        .detail-table tr,
+        .components-table tr,
+        .detail-table td,
+        .components-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .detail-table tr,
+        .components-table tr {
+            margin-bottom: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .detail-table td::before,
+        .components-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+    }
+</style>
+@endsection

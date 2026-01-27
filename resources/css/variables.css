@@ -1,0 +1,24 @@
+:root {
+    --primary-bg: #ffffff;
+    --border-color: #e5e7eb;
+    --text-primary: #101828;
+    --text-secondary: #6a7282;
+    --bg-light: #f5f7fa;
+    --primary-color: #3366FF;
+    --success-color: #10B981;
+    --warning-color: #F59E0B;
+    --danger-color: #EF4444;
+    --info-color: #06B6D4;
+    --active-color: #155dfc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-light);
+    font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
