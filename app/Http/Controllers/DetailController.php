@@ -12,10 +12,18 @@ class DetailController extends Controller
      */
     public function index()
     {
-        $details = Detail::with('category', 'places')
-            ->paginate(15);
+        $items = Detail::where('product_type_id', 3)
+            ->with('productType', 'category')
+            ->paginate(10);
         
-        return view('details.index', ['details' => $details]);
+        return view('details.list', [
+            'items' => $items,
+            'pageTitle' => $items->first()?->productType?->name ?? 'Детали',
+            'pageSubtitle' => 'Управление деталями и компонентами',
+            'addButtonText' => 'Добавить деталь',
+            'addButtonUrl' => route('details.create'),
+            'emptyMessage' => 'Детали не найдены.'
+        ]);
     }
 
     /**
@@ -24,7 +32,8 @@ class DetailController extends Controller
     public function create()
     {
         $categories = \App\Models\Category::all();
-        return view('details.create', ['categories' => $categories]);
+        $sources = \App\Models\Source::all();
+        return view('details.create', ['categories' => $categories, 'sources' => $sources]);
     }
 
     /**
@@ -55,7 +64,7 @@ class DetailController extends Controller
      */
     public function show(Detail $detail)
     {
-        $detail->load('category', 'places', 'source');
+        $detail->load('category', 'source');
         return view('details.show', compact('detail'));
     }
 

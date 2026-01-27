@@ -62,18 +62,4 @@ class Detail extends Model
             'id'
         );
     }
-
-    public function places()
-    {
-        return $this->belongsToMany(
-            Place::class, 
-            'configs',
-            'master_id',     // foreign key on configs table pointing to products (master)
-            'slave_id',      // foreign key on configs table pointing to products (slave/place)
-            'id',            // local key on products table
-            'id'             // local key on products table
-        )
-            ->withPivot('quantity')
-            ->withTimestamps();
-    }
 }

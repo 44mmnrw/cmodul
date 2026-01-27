@@ -9,6 +9,11 @@ class Place extends Model
     protected $fillable = ['place_id', 'name'];
     protected $table = 'places';
 
+    public function getRouteKeyName()
+    {
+        return 'place_id';
+    }
+
     public function cabinets()
     {
         return $this->belongsToMany(

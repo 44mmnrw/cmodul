@@ -1,8 +1,13 @@
 @import url('./variables.css');
+@import url('./reset.css');
 @import url('./header.css');
 @import url('./navigation.css');
 @import url('./common.css');
-@import url('./virtual-stock.css');
+@import url('./details.css');
+@import url('./details-list.css');
+@import url('./details-form.css');
 @import url('./configurations.css');
+@import url('./configurations-form.css');
 @import url('./configuration-detail.css');
 @import url('./place-detail.css');
+@import url('./virtual-stock.css');

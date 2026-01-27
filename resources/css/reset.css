@@ -1,0 +1,49 @@
+/* Reset Browser Default Styles */
+
+/* Links */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+/* Buttons */
+button, .btn-primary, .btn-secondary, .btn-danger {
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+button:hover, .btn-primary:hover, .btn-secondary:hover, .btn-danger:hover {
+    text-decoration: none !important;
+}
+
+/* Button Links */
+a.btn-primary, a.btn-secondary, a.btn-danger {
+    text-decoration: none;
+    display: inline-block;
+}
+
+a.btn-primary:hover, a.btn-secondary:hover, a.btn-danger:hover {
+    text-decoration: none;
+}
+
+/* Remove default list styles */
+ul, ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Form elements */
+input, textarea, select {
+    font-family: inherit;
+}
+
+/* Remove default image border */
+img {
+    border: none;
+    max-width: 100%;
+}

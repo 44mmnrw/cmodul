@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'TelecomCabinet Pro')</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js'
+    ])
+    @stack('styles')
 </head>
 <body>
+    <!-- SVG Sprite Icons -->
+    @include('components.svg-sprite')
+
     <!-- Header -->
     <header class="header">
         <div class="header-container">
@@ -50,5 +57,6 @@
 
         @yield('content')
     </div>
+    @stack('scripts')
 </body>
 </html>

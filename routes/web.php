@@ -2,16 +2,25 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CabinetController;
-use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ConfigController;
 
 Route::get('/', function () {
     return view('index');
 });
 
 Route::get('/places', function () {
-    $places = \App\Models\Place::all();
-    return view('places', ['places' => $places]);
+    $items = \App\Models\Detail::where('product_type_id', 2)
+        ->with('productType', 'category')
+        ->paginate(10);
+    return view('details.list', [
+        'items' => $items,
+        'pageTitle' => 'Компоненты',
+        'pageSubtitle' => 'Управление компонентами и местами размещения',
+        'addButtonText' => 'Добавить компонент',
+        'addButtonUrl' => route('details.create'),
+        'emptyMessage' => 'Компоненты не найдены.'
+    ]);
 });
 
 Route::get('/virtual-stock', function () {
@@ -22,41 +31,29 @@ Route::get('/virtual-stock', function () {
 });
 
 Route::get('/configurations', function () {
-    $cabinets = \App\Models\Detail::where('product_type_id', 1)
+    $type = request('type', 1); // Тип по умолчанию 1 (конфигурации)
+    $cabinets = \App\Models\Detail::where('product_type_id', $type)
         ->with('productType')
-        ->get();
-    return view('configurations', ['cabinets' => $cabinets]);
-});
+        ->paginate(10);
+    return view('configurations.list', [
+        'cabinets' => $cabinets,
+        'currentType' => $type
+    ]);
+})->name('configurations.index');
+
+Route::get('/configurations/create', [ConfigController::class, 'create'])->name('configurations.create');
 
 Route::get('/configurations/{id}', function ($id) {
     $cabinet = \App\Models\Detail::where('product_type_id', 1)
         ->with('componentsInConfiguration', 'productType')
         ->findOrFail($id);
-    return view('configuration-detail', ['cabinet' => $cabinet]);
-});
+    return view('configurations.show', ['cabinet' => $cabinet]);
+})->name('configuration-detail');
 
-Route::get('/places/{place_id}', function ($place_id) {
-    $place = \App\Models\Place::where('place_id', $place_id)
-        ->with('cabinets', 'stock', 'details')
-        ->firstOrFail();
-    
-    // Загрузим деталь по place_id в details таблице
-    $placeDetail = \App\Models\Detail::where('scu', $place_id)
-        ->with('componentsInConfiguration', 'usedInCabinets', 'productType')
-        ->first();
-    
-    return view('place-detail', ['place' => $place, 'placeDetail' => $placeDetail]);
-});
-
-Route::get('/test-detail/{id}', function($id) {
-    $detail = \App\Models\Detail::with('places')->findOrFail($id);
-    return view('test-detail', compact('detail'));
-});
-
-// Маршруты для мест
-Route::resource('places', PlaceController::class)->parameters([
-    'place' => 'place:place_id'
-]);
+Route::post('/configurations', [ConfigController::class, 'store'])->name('cabinet.store');
+Route::get('/configurations/{id}/edit', [ConfigController::class, 'edit'])->name('configurations.edit');
+Route::put('/configurations/{id}', [ConfigController::class, 'update'])->name('configuration-update');
+Route::delete('/configurations/{id}', [ConfigController::class, 'destroy'])->name('configurations.destroy');
 
 // Маршруты для кабинетов
 Route::resource('cabinets', CabinetController::class);
@@ -66,3 +63,4 @@ Route::resource('users', UserController::class);
 
 // Маршруты для деталей
 Route::resource('details', \App\Http\Controllers\DetailController::class);
+
