@@ -111,7 +111,7 @@
                         </svg>
                         <h3 class="section-title">Используется в компонентах</h3>
                     </div>
-                    <span class="count-badge">({{ count($detail->places) }})</span>
+                    <span class="count-badge">({{ count($detail->usedInCabinets) }})</span>
                 </div>
 
                 <div class="table-wrapper">
@@ -125,19 +125,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($detail->places as $place)
-                                <tr class="place-row" onclick="window.location.href = '{{ route('places.show', $place) }}';" style="cursor: pointer;">
+                            @forelse($detail->usedInCabinets as $cabinet)
+                                <tr class="place-row" onclick="window.location.href = '{{ route('details.show', $cabinet) }}';" style="cursor: pointer;">
                                     <td>
-                                        <span class="type-badge">Боковая панель</span>
+                                        <span class="type-badge">Компонент</span>
                                     </td>
                                     <td>
                                         <div class="component-info">
-                                            <div class="component-name">{{ $place->name }}</div>
-                                            <span class="component-code">{{ $place->place_id }}</span>
+                                            <div class="component-name">{{ $cabinet->name }}</div>
+                                            <span class="component-code">{{ $cabinet->scu }}</span>
                                         </div>
                                     </td>
-                                    <td class="center">{{ $place->pivot->quantity }} шт</td>
-                                    <td class="right">{{ number_format($detail->price ?? 0, 0, ',', ' ') }} ₽</td>
+                                    <td class="center">{{ $cabinet->pivot->quantity }} шт</td>
+                                    <td class="right">{{ number_format($cabinet->price ?? 0, 0, ',', ' ') }} ₽</td>
                                 </tr>
                             @empty
                                 <tr>
