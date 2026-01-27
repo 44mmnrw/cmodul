@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Detail extends Model
 {
+    protected $table = 'products';
+
     protected $fillable = [
         'name',
         'weight',
@@ -40,9 +42,9 @@ class Detail extends Model
     {
         return $this->belongsToMany(
             Detail::class,
-            'cabinet_place',
-            'place_detail_id',
-            'cabinet_detail_id',
+            'configs',
+            'slave_id',
+            'master_id',
             'id',
             'id'
         );
@@ -53,9 +55,9 @@ class Detail extends Model
     {
         return $this->belongsToMany(
             Detail::class,
-            'cabinet_place',
-            'cabinet_detail_id',
-            'place_detail_id',
+            'configs',
+            'master_id',
+            'slave_id',
             'id',
             'id'
         );
@@ -65,11 +67,11 @@ class Detail extends Model
     {
         return $this->belongsToMany(
             Place::class, 
-            'place_detail',
-            'detail_id',     // foreign key on place_detail table pointing to details
-            'place_id',      // foreign key on place_detail table pointing to places
-            'id',            // local key on details table
-            'place_id'       // local key on places table (it's the place_id column, not id!)
+            'configs',
+            'master_id',     // foreign key on configs table pointing to products (master)
+            'slave_id',      // foreign key on configs table pointing to products (slave/place)
+            'id',            // local key on products table
+            'id'             // local key on products table
         )
             ->withPivot('quantity')
             ->withTimestamps();

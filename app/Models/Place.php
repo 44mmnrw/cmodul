@@ -13,9 +13,9 @@ class Place extends Model
     {
         return $this->belongsToMany(
             Cabinet::class,
-            'cabinet_place',
-            'place_detail_id',
-            'cabinet_detail_id',
+            'configs',
+            'slave_id',
+            'master_id',
             'id',
             'id'
         );
@@ -46,13 +46,27 @@ class Place extends Model
         // Кабинеты, в которых используется это место
         return $this->belongsToMany(
             Cabinet::class,
-            'cabinet_place',
-            'place_detail_id',
-            'cabinet_detail_id',
+            'configs',
+            'slave_id',
+            'master_id',
             'id',
             'id'
         )
-        ->using(CabinetPlace::class);
+        ->using(Config::class);
+    }
+
+    public function details()
+    {
+        // Все детали (products) которые входят в это место
+        // Через таблицу configs как slave_id
+        return $this->belongsToMany(
+            Detail::class,
+            'configs',
+            'slave_id',
+            'master_id',
+            'id',
+            'id'
+        );
     }
 }
 

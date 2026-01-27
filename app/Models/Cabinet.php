@@ -13,15 +13,15 @@ use Illuminate\Database\Eloquent\Model;
 class Cabinet extends Model
 {
     protected $fillable = ['cabinet_id', 'name'];
-    protected $table = 'cabinets';
+    protected $table = 'products';
 
     public function places()
     {
         return $this->belongsToMany(
             Place::class,
-            'cabinet_place',
-            'cabinet_detail_id',
-            'place_detail_id',
+            'configs',
+            'master_id',
+            'slave_id',
             'id',
             'id'
         );
