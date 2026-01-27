@@ -191,7 +191,7 @@ unset($__errorArgs, $__bag); ?>
                                 <select id="component-select" class="form-control">
                                     <option value="">Выберите компонент...</option>
                                     <?php $__currentLoopData = $availableComponents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($component->id); ?>" data-name="<?php echo e($component->name); ?>" data-scu="<?php echo e($component->scu); ?>">
+                                        <option value="<?php echo e($component->id); ?>" data-name="<?php echo e($component->name); ?>" data-scu="<?php echo e($component->scu); ?>" data-type="<?php echo e($component->product_type_id); ?>">
                                             <?php echo e($component->name); ?> (<?php echo e($component->scu); ?>)
                                         </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -236,6 +236,91 @@ unset($__errorArgs, $__bag); ?>
 
 <script>
     let componentCounter = 0;
+    let allComponents = {};
+
+    // Сохраняем все компоненты в объект с группировкой по типам
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== DOMContentLoaded ===');
+        const options = document.querySelectorAll('#component-select option[data-type]');
+        console.log('Found options:', options.length);
+        
+        options.forEach(option => {
+            const type = option.getAttribute('data-type');
+            const id = option.value;
+            const name = option.getAttribute('data-name');
+            console.log(`Component: id=${id}, type=${type}, name=${name}`);
+            
+            if (!allComponents[type]) {
+                allComponents[type] = [];
+            }
+            allComponents[type].push({
+                id: id,
+                name: name,
+                scu: option.getAttribute('data-scu'),
+                type: type
+            });
+        });
+
+        console.log('Grouped components by type:', allComponents);
+
+        // Инициализируем счётчик компонентов
+        const currentItemsCount = document.querySelectorAll('[data-component-id]').length;
+        componentCounter = currentItemsCount;
+        
+        // Фильтруем компоненты при загрузке
+        updateComponentOptions();
+        
+        // Добавляем обработчик на изменение типа
+        const typeSelect = document.getElementById('product_type_id');
+        if (typeSelect) {
+            typeSelect.addEventListener('change', function() {
+                console.log('Type changed to:', this.value);
+                updateComponentOptions();
+            });
+        }
+    });
+
+    function updateComponentOptions() {
+        const typeSelect = document.getElementById('product_type_id');
+        const componentSelect = document.getElementById('component-select');
+        const selectedType = typeSelect.value;
+
+        console.log('updateComponentOptions - selectedType:', selectedType);
+
+        if (!selectedType) {
+            // Если тип не выбран, показываем только заголовок (пустой список)
+            console.log('No type selected, clearing options');
+            componentSelect.innerHTML = '<option value="">Выберите тип конфигурации сначала</option>';
+            return;
+        }
+
+        // Определяем, какой тип компонентов нужно показывать
+        const requiredComponentType = String(parseInt(selectedType) + 1);
+        console.log(`Looking for components with type: ${requiredComponentType}`);
+        console.log('Available types:', Object.keys(allComponents));
+
+        componentSelect.innerHTML = '<option value="">Выберите компонент...</option>';
+
+        if (allComponents[requiredComponentType] && allComponents[requiredComponentType].length > 0) {
+            console.log(`Found ${allComponents[requiredComponentType].length} components for type ${requiredComponentType}`);
+            allComponents[requiredComponentType].forEach(comp => {
+                const option = document.createElement('option');
+                option.value = comp.id;
+                option.textContent = `${comp.name} (${comp.scu})`;
+                option.setAttribute('data-name', comp.name);
+                option.setAttribute('data-scu', comp.scu);
+                option.setAttribute('data-type', comp.type);
+                componentSelect.appendChild(option);
+            });
+        } else {
+            console.log(`No components found for type ${requiredComponentType}`);
+            const noOption = document.createElement('option');
+            noOption.value = '';
+            noOption.textContent = 'Нет доступных компонентов';
+            noOption.disabled = true;
+            componentSelect.appendChild(noOption);
+        }
+    }
 
     function addComponent() {
         console.log('addComponent called');
@@ -317,12 +402,5 @@ unset($__errorArgs, $__bag); ?>
         
         return false;
     }
-
-    // Инициализируем счётчик компонентов
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentItemsCount = document.querySelectorAll('[data-component-id]').length;
-        componentCounter = currentItemsCount;
-        console.log('Form initialized with counter:', componentCounter);
-    });
 </script>
 <?php /**PATH C:\laragon\www\Cmodul\resources\views/configurations/_form.blade.php ENDPATH**/ ?>

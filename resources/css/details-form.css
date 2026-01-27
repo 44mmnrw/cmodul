@@ -85,26 +85,6 @@
     gap: 8px;
 }
 
-.btn-secondary {
-    padding: 10px 16px;
-    background: #e5e7eb;
-    color: #374151;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-secondary:hover {
-    background: #d1d5db;
-}
-
 .w-4 {
     width: 16px;
 }

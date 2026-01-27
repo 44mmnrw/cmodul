@@ -34,8 +34,8 @@
   <symbol id="icon-plus" viewBox="0 0 33 33" data-name="Плюс" data-category="Действия">
     <g id="Слой_x0020_1">
       <metadata id="CorelCorpID_0Corel-Layer"/>
-      <line fill="none" stroke="currentColor" stroke-width="4.13" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="22.9256" x1="2.06" y1="16.5" x2="30.94" y2="16.5"/>
-      <line fill="none" stroke="currentColor" stroke-width="4.13" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="22.9256" x1="16.5" y1="2.06" x2="16.5" y2="30.94"/>
+      <line fill="currentColor" stroke="currentColor" stroke-width="4.13" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="22.9256" x1="2.06" y1="16.5" x2="30.94" y2="16.5"/>
+      <line fill="currentColor" stroke="currentColor" stroke-width="4.13" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="22.9256" x1="16.5" y1="2.06" x2="16.5" y2="30.94"/>
     </g>
   </symbol>
 </svg>

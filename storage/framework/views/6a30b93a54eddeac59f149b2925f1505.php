@@ -11,13 +11,12 @@
             <p class="page-subtitle"><?php echo e($pageSubtitle ?? 'Управление элементами'); ?></p>
         </div>
         <?php if($addButtonUrl ?? false): ?>
-            <a href="<?php echo e($addButtonUrl); ?>" class="btn-primary">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+            <button onclick="window.location.href='<?php echo e($addButtonUrl); ?>'" class="btn-primary btn-create-config">
+                <svg class="btn-icon">
+                    <use xlink:href="#icon-plus"></use>
                 </svg>
-                <?php echo e($addButtonText ?? 'Добавить'); ?>
-
-            </a>
+                <span><?php echo e($addButtonText ?? 'Добавить'); ?></span>
+            </button>
         <?php endif; ?>
     </div>
 

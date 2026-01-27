@@ -15,8 +15,12 @@ class ConfigController extends Controller
     {
         $type = request('type', 1); // Тип по умолчанию 1 (конфигурации)
         
-        // Получим детали с типом, который указан как product_type_id
-        $availableComponents = Detail::where('product_type_id', $type)
+        // Получим ВСЕ детали (для фильтрации по product_type_id на frontend)
+        // Типы компонентов определяются так:
+        // - Если выбран product_type_id=1, показываем компоненты с product_type_id=2
+        // - Если выбран product_type_id=2, показываем компоненты с product_type_id=3
+        $availableComponents = Detail::whereIn('product_type_id', [2, 3])
+            ->orderBy('product_type_id')
             ->orderBy('name')
             ->get();
         
@@ -109,8 +113,9 @@ class ConfigController extends Controller
         // Найти деталь по ID (может быть тип 1 или 2)
         $detail = Detail::findOrFail($id);
         
-        // Получим все доступные компоненты
-        $availableComponents = Detail::where('product_type_id', $detail->product_type_id)
+        // Получим ВСЕ компоненты (для фильтрации по product_type_id на frontend)
+        $availableComponents = Detail::whereIn('product_type_id', [2, 3])
+            ->orderBy('product_type_id')
             ->orderBy('name')
             ->get();
         
