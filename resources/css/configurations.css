@@ -120,6 +120,10 @@
 .configurations-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 1000px;
+    height: auto !important;
+    max-height: none !important;
 }
 
 .configurations-table thead {
@@ -147,7 +151,7 @@
 .configurations-table tbody tr {
     border-bottom: 1px solid var(--border-color);
     background: white;
-    height: 121px;
+    height: auto;
     transition: background-color 0.2s;
 }
 
@@ -161,6 +165,9 @@
     color: #101828;
     font-size: 14px;
     line-height: 20px;
+    word-break: break-word;
+    white-space: normal;
+    overflow: visible;
 }
 
 .configurations-table tbody td.text-right {

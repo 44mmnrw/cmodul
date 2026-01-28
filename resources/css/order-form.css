@@ -1,0 +1,462 @@
+/* =============================================
+   ORDER FORM - Production Orders Create Page
+   ============================================= */
+
+.order-form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.order-form-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1), 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* FORM HEADER */
+.form-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 24px 24px 16px 24px;
+    background: white;
+}
+
+.form-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #101828;
+    margin: 0 0 8px 0;
+    line-height: 24px;
+}
+
+.form-subheading {
+    font-size: 14px;
+    color: #4a5565;
+    margin: 0;
+    line-height: 20px;
+}
+
+/* FORM WRAPPER */
+.order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+}
+
+/* DATES ROW */
+.form-dates-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+/* FORM GROUPS */
+.form-group-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #364153;
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.required {
+    color: #fb2c36;
+    font-weight: 600;
+}
+
+/* FORM CONTROLS */
+.form-control {
+    padding: 10px 12px;
+    border: 1px solid #d1d5dc;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #101828;
+    background: white;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    line-height: 20px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4f39f6;
+    box-shadow: 0 0 0 3px rgba(79, 57, 246, 0.1);
+}
+
+.form-control::placeholder {
+    color: rgba(10, 10, 10, 0.5);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 90px;
+    padding: 8px 16px;
+}
+
+/* DATE INPUT WRAPPER */
+.date-input-wrapper {
+    position: relative;
+}
+
+.date-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+    pointer-events: none;
+}
+
+.date-input {
+    padding-left: 36px;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+/* TABLE STYLES */
+.table-wrapper {
+    border: 1px solid #d1d5dc;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.configs-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.configs-table thead {
+    background: #f9fafb;
+    border-bottom: 1px solid #d1d5dc;
+}
+
+.configs-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #364153;
+    border-right: 1px solid #d1d5dc;
+    line-height: 20px;
+}
+
+.configs-table th:last-child {
+    border-right: none;
+}
+
+.configs-table tbody tr {
+    border-bottom: 1px solid #d1d5dc;
+}
+
+.configs-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.configs-table td {
+    padding: 12px 15px;
+    border-right: 1px solid #d1d5dc;
+    vertical-align: middle;
+}
+
+.configs-table td:last-child {
+    border-right: none;
+}
+
+/* COLUMN WIDTHS */
+.col-number {
+    width: 90px;
+    text-align: center;
+}
+
+.col-config {
+    width: auto;
+    min-width: 250px;
+}
+
+.col-quantity {
+    width: 150px;
+}
+
+.col-price {
+    width: 130px;
+    text-align: right;
+}
+
+.col-sum {
+    width: 90px;
+    text-align: right;
+}
+
+.col-actions {
+    width: 80px;
+    text-align: center;
+}
+
+/* ROW DATA */
+.row-number {
+    font-size: 14px;
+    color: #4a5565;
+    font-weight: 500;
+    display: block;
+    text-align: center;
+}
+
+.config-select {
+    width: 100%;
+}
+
+.config-qty {
+    width: 100%;
+    text-align: center;
+}
+
+.price-value,
+.sum-value {
+    font-size: 14px;
+    color: #101828;
+    display: block;
+    text-align: right;
+    font-weight: 500;
+}
+
+.sum-value {
+    font-weight: 700;
+}
+
+/* DELETE BUTTON */
+.btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.3;
+    padding: 0;
+}
+
+.btn-delete:hover {
+    background: rgba(107, 114, 128, 0.1);
+    opacity: 1;
+    color: #dc2626;
+}
+
+.btn-delete svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* TABLE FOOTER */
+.table-footer {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border-top: 1px solid #d1d5dc;
+}
+
+.btn-add-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #eef2ff;
+    border: none;
+    border-radius: 10px;
+    color: #4f39f6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    line-height: 24px;
+}
+
+.btn-add-row:hover {
+    background: #e5e0ff;
+}
+
+.btn-add-row svg {
+    width: 16px;
+    height: 16px;
+}
+
+.row-counter {
+    font-size: 14px;
+    color: #4a5565;
+    line-height: 20px;
+}
+
+/* TABLE TOTAL */
+.table-total {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 15px;
+    background: #f9fafb;
+    border-top: 1px solid #d1d5dc;
+    border-radius: 0 0 10px 10px;
+}
+
+.total-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #101828;
+    line-height: 24px;
+}
+
+.total-amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: #101828;
+    line-height: 24px;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* FORM ACTIONS */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    line-height: 24px;
+    text-decoration: none;
+    height: 44px;
+}
+
+.btn-outline {
+    background: white;
+    border: 1px solid #d1d5dc;
+    color: #364153;
+}
+
+.btn-outline:hover {
+    background: #f9fafb;
+    border-color: #c4c9d1;
+}
+
+.btn-primary {
+    background: #4f39f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3f2dd4;
+}
+
+.btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.form-error {
+    font-size: 12px;
+    color: #dc2626;
+    margin-top: 4px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .order-form-container {
+        padding: 16px;
+    }
+
+    .order-form {
+        padding: 16px;
+    }
+
+    .form-dates-row {
+        grid-template-columns: 1fr;
+    }
+
+    .configs-table {
+        font-size: 13px;
+    }
+
+    .configs-table th,
+    .configs-table td {
+        padding: 8px 10px;
+    }
+
+    .col-config {
+        min-width: 180px;
+    }
+
+    .col-quantity {
+        width: 120px;
+    }
+
+    .col-price,
+    .col-sum {
+        width: 80px;
+    }
+
+    .col-actions {
+        width: 60px;
+    }
+
+    .table-footer {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        height: auto;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -11,3 +11,8 @@
 @import url('./configuration-detail.css');
 @import url('./place-detail.css');
 @import url('./virtual-stock.css');
+@import url('./receipts.css');
+@import url('./shipments.css');
+@import url('./shipments-form.css');
+@import url('./production-orders.css');
+@import url('./order-form.css');

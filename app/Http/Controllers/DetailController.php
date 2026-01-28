@@ -13,7 +13,7 @@ class DetailController extends Controller
     public function index()
     {
         $items = Detail::where('product_type_id', 3)
-            ->with('productType', 'category')
+            ->with('productType', 'category', 'stock')
             ->paginate(10);
         
         return view('details.list', [

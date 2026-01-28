@@ -280,7 +280,7 @@
 /* Components Table */
 
 .table-wrapper {
-    overflow-x: auto;
+    overflow: hidden;
     border-radius: 10px;
 }
 

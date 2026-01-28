@@ -303,7 +303,7 @@
 
 /* TABLE STYLES */
 .detail-page .table-wrapper {
-    overflow-x: auto;
+    overflow: hidden;
 }
 
 .detail-page .components-table {

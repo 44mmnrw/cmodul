@@ -22,17 +22,16 @@
 
     <!-- Details Table -->
     <div class="card details-card">
-        <div class="table-wrapper">
-            <table class="details-table">
-                <thead>
-                    <tr>
-                        <th>Категория</th>
-                        <th>Код</th>
-                        <th>Название</th>
-                        <th class="text-right">Остаток</th>
-                        <th class="text-center">Действия</th>
-                    </tr>
-                </thead>
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th>Категория</th>
+                    <th>Код</th>
+                    <th>Название</th>
+                    <th class="text-right">Остаток</th>
+                    <th class="text-center">Действия</th>
+                </tr>
+            </thead>
                 <tbody>
                     <?php $__empty_1 = true; $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
@@ -53,7 +52,12 @@
                                 </a>
                             </td>
                             <td class="text-right">
-                                <span class="text-muted">—</span>
+                                <?php if($item->stock): ?>
+                                    <span class="stock-quantity"><?php echo e($item->stock->quantity ?? 0); ?></span>
+                                    <span class="stock-unit"> шт</span>
+                                <?php else: ?>
+                                    <span class="text-muted">—</span>
+                                <?php endif; ?>
                             </td>
                             <td class="text-center">
                                 <div class="action-buttons">
@@ -89,7 +93,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
     <!-- Pagination -->
     <?php if(isset($items) && method_exists($items, 'hasPages') && $items->hasPages()): ?>

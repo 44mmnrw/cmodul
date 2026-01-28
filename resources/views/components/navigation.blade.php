@@ -42,5 +42,27 @@
             </svg>
             <span>Виртуальные остатки</span>
         </a>
+
+        <a href="/receipts/journal" class="nav-button {{ request()->is('receipts*') ? 'active' : '' }}">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-2.16-2.66c-.3-.37-.77-.56-1.24-.56-.99 0-1.57 1.14-.82 1.89l2.98 3.67c.35.41.87.67 1.41.67.54 0 1.06-.26 1.41-.67l4.15-5.23c.75-.75.17-1.89-.82-1.89-.48 0-.95.19-1.25.56z" fill="currentColor"/>
+            </svg>
+            <span>Приходы</span>
+        </a>
+
+        <a href="/shipments" class="nav-button {{ request()->is('shipments*') ? 'active' : '' }}">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 18.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM9 18.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" fill="currentColor"/>
+                <path d="M20 8H4V4h16m0 7H1v9h22v-9z" fill="currentColor"/>
+            </svg>
+            <span>Отгрузки</span>
+        </a>
+
+        <a href="{{ route('production-orders.index') }}" class="nav-button {{ request()->is('production-orders*') ? 'active' : '' }}">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 9.5c0 .83-.67 1.5-1.5 1.5S11 13.33 11 12.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5zM5 5h14v4H5V5zm0 14v-4h14v4H5z" fill="currentColor"/>
+            </svg>
+            <span>Производство</span>
+        </a>
     </div>
 </nav>

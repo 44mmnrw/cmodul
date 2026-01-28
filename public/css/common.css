@@ -165,7 +165,7 @@
 
 /* Content Wrapper */
 .content-wrapper {
-    max-width: 75rem;
+    max-width: none;
     margin: 0 auto;
     padding: 1.25rem;
     display: flex;
@@ -315,11 +315,18 @@
 /* Table Card */
 .table-card {
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
+    max-height: none !important;
+    height: auto !important;
 }
 
 .table-wrapper {
     overflow-x: auto;
+    overflow-y: visible !important;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    max-height: none !important;
+    height: auto !important;
 }
 
 .components-table {

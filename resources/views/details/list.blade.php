@@ -22,17 +22,16 @@
 
     <!-- Details Table -->
     <div class="card details-card">
-        <div class="table-wrapper">
-            <table class="details-table">
-                <thead>
-                    <tr>
-                        <th>Категория</th>
-                        <th>Код</th>
-                        <th>Название</th>
-                        <th class="text-right">Остаток</th>
-                        <th class="text-center">Действия</th>
-                    </tr>
-                </thead>
+        <table class="details-table">
+            <thead>
+                <tr>
+                    <th>Категория</th>
+                    <th>Код</th>
+                    <th>Название</th>
+                    <th class="text-right">Остаток</th>
+                    <th class="text-center">Действия</th>
+                </tr>
+            </thead>
                 <tbody>
                     @forelse($items as $item)
                         <tr>
@@ -52,7 +51,12 @@
                                 </a>
                             </td>
                             <td class="text-right">
-                                <span class="text-muted">—</span>
+                                @if($item->stock)
+                                    <span class="stock-quantity">{{ $item->stock->quantity ?? 0 }}</span>
+                                    <span class="stock-unit"> шт</span>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
                             </td>
                             <td class="text-center">
                                 <div class="action-buttons">
@@ -88,7 +92,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
     <!-- Pagination -->
     @if(isset($items) && method_exists($items, 'hasPages') && $items->hasPages())

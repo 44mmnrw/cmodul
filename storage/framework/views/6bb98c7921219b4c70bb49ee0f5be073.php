@@ -126,7 +126,7 @@ unset($__errorArgs, $__bag); ?>
             <!-- Right Column -->
             <div class="config-edit-right">
                 <!-- Components Card (only for configurations, not for components) -->
-                <?php if($isConfiguration): ?>
+                <?php if($isConfiguration || $isComponent): ?>
                 <div class="card config-card">
                     <div class="config-card-header">
                         <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">

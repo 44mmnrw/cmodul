@@ -74,7 +74,6 @@
 }
 
 .table-wrapper {
-    overflow-x: auto;
     width: 100%;
 }
 
@@ -378,4 +377,16 @@
     .category-badge {
         font-size: 11px;
     }
+}
+/* Stock Display */
+.stock-quantity {
+    font-weight: 600;
+    color: #1a1a1a;
+    font-family: 'Courier New', monospace;
+}
+
+.stock-unit {
+    font-size: 12px;
+    color: #999;
+    margin-left: 4px;
 }

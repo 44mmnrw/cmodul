@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CabinetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ConfigController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\StockBalanceController;
+use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\ProductionOrderController;
 
 Route::get('/', function () {
     return view('index');
@@ -11,7 +15,7 @@ Route::get('/', function () {
 
 Route::get('/places', function () {
     $items = \App\Models\Detail::where('product_type_id', 2)
-        ->with('productType', 'category')
+        ->with('productType', 'category', 'stock')
         ->paginate(10);
     return view('details.list', [
         'items' => $items,
@@ -23,12 +27,8 @@ Route::get('/places', function () {
     ]);
 });
 
-Route::get('/virtual-stock', function () {
-    $configurations = \App\Models\Detail::where('product_type_id', 1)
-        ->with('productType')
-        ->get();
-    return view('virtual-stock', ['configurations' => $configurations]);
-});
+Route::get('/virtual-stock', [StockBalanceController::class, 'virtualStock'])->name('stock.virtual-stock');
+Route::get('/api/virtual-stock', [StockBalanceController::class, 'apiVirtualStock'])->name('api.virtual-stock');
 
 Route::get('/configurations', function () {
     $type = request('type', 1); // Тип по умолчанию 1 (конфигурации)
@@ -64,3 +64,21 @@ Route::resource('users', UserController::class);
 // Маршруты для деталей
 Route::resource('details', \App\Http\Controllers\DetailController::class);
 
+// Маршруты для приходов
+Route::get('/receipts', [ReceiptController::class, 'index'])->name('receipts.index');
+Route::get('/receipts/create', [ReceiptController::class, 'create'])->name('receipts.create');
+Route::post('/receipts', [ReceiptController::class, 'store'])->name('receipts.store');
+Route::get('/receipts/history', [ReceiptController::class, 'history'])->name('receipts.history');
+Route::get('/receipts/journal', [ReceiptController::class, 'journal'])->name('receipts.journal');
+Route::get('/receipts/{id}', [ReceiptController::class, 'show'])->name('receipts.show');
+
+// Маршруты для отгрузок
+Route::get('/shipments', [ShipmentController::class, 'journal'])->name('shipments.journal');
+Route::get('/shipments/create', [ShipmentController::class, 'create'])->name('shipments.create');
+Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store');
+Route::get('/shipments/{id}', [ShipmentController::class, 'show'])->name('shipments.show');
+
+// Маршруты для производственных заказов
+Route::resource('production-orders', ProductionOrderController::class);
+Route::patch('/production-orders/{productionOrder}/status', [ProductionOrderController::class, 'updateStatus'])->name('production-orders.updateStatus');
+Route::post('/production-orders/{productionOrder}/receive', [ProductionOrderController::class, 'receiveQuantity'])->name('production-orders.receiveQuantity');

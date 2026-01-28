@@ -204,7 +204,7 @@
 
 /* Content Wrapper */
 .content-wrapper {
-    max-width: 75rem;
+    max-width: none;
     margin: 0 auto;
     padding: 1.25rem;
     display: flex;
@@ -409,17 +409,43 @@
 /* Table Card */
 .table-card {
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
+    max-height: none !important;
+    height: auto !important;
 }
 
 .table-wrapper {
     overflow-x: auto;
+    overflow-y: visible !important;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    max-height: none !important;
+    height: auto !important;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: transparent;
 }
 
 .components-table {
     width: 100%;
     border-collapse: collapse;
     background: white;
+    table-layout: auto;
+}
+
+.components-table tbody td {
+    word-break: break-word;
+    white-space: normal;
+    overflow: visible;
 }
 
 .components-table thead {
