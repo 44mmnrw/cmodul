@@ -14,18 +14,11 @@ return new class extends Migration
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id')->unique();
-            
-            // Остатки
-            $table->integer('quantity')->default(0);    // всего на складе
-            $table->integer('reserved')->default(0);    // зарезервировано
-            // доступно = quantity - reserved (вычисляется через виртуальный атрибут в модели)
-            
-            // Настройки
-            $table->integer('min_quantity')->default(0); // минимум для алерта
-            
+            $table->integer('quantity')->default(0);
+            $table->integer('reserved')->default(0);
+            $table->integer('min_quantity')->default(0);
             $table->timestamps();
             
-            // Индексы и внешние ключи
             $table->foreign('product_id')
                 ->references('id')
                 ->on('products')

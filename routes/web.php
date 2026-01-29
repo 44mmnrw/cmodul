@@ -8,6 +8,8 @@ use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\StockBalanceController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\ProductionOrderController;
+use App\Http\Controllers\ProductionOrderStatusController;
+use App\Http\Controllers\ProductionPlanningController;
 
 Route::get('/', function () {
     return view('index');
@@ -82,3 +84,11 @@ Route::get('/shipments/{id}', [ShipmentController::class, 'show'])->name('shipme
 Route::resource('production-orders', ProductionOrderController::class);
 Route::patch('/production-orders/{productionOrder}/status', [ProductionOrderController::class, 'updateStatus'])->name('production-orders.updateStatus');
 Route::post('/production-orders/{productionOrder}/receive', [ProductionOrderController::class, 'receiveQuantity'])->name('production-orders.receiveQuantity');
+
+// Маршруты для статусов производственных заказов
+Route::resource('production-order-statuses', ProductionOrderStatusController::class);
+
+// Маршруты для планирования производства
+Route::get('/production-planning', [ProductionPlanningController::class, 'index'])->name('production-planning.index');
+Route::post('/production-planning/analyze', [ProductionPlanningController::class, 'analyzeRequirements'])->name('production-planning.analyze');
+

@@ -120,7 +120,8 @@
                         <th>Номер заказа</th>
                         <th>Дата / Срок</th>
                         <th>План. дата</th>
-                        <th class="text-center">Шкафов</th>
+                        <th class="text-center">Конфигов</th>
+                        <th class="text-center">Кол-во</th>
                         <th class="text-right">Сумма</th>
                         <th class="text-center">Статус</th>
                         <th class="text-center">Действия</th>
@@ -130,7 +131,7 @@
                     <?php $__currentLoopData = $orders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td>
-                                <strong class="order-number">ПЗ-<?php echo e($order->id); ?></strong>
+                                <strong class="order-number"><?php echo e($order->order->order_num); ?></strong>
                             </td>
                             <td>
                                 <div class="date-cell">
@@ -146,31 +147,27 @@
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
-                                <span class="qty-value"><?php echo e($order->quantity_ordered); ?> шт</span>
-                            </td>
-                            <td class="text-right">
-                                <strong class="price-value"><?php echo e(number_format($order->quantity_ordered * 13550, 0, ',', ' ')); ?> ₽</strong>
+                                <span class="qty-value"><?php echo e($order->config_count); ?> шт</span>
                             </td>
                             <td class="text-center">
-                                <?php
-                                    $statusClass = [
-                                        'ordering' => 'status-ordering',
-                                        'in_production' => 'status-in-production',
-                                        'ready' => 'status-ready',
-                                        'completed' => 'status-completed',
-                                    ][$order->status] ?? 'status-default';
-                                    $statusLabel = [
-                                        'ordering' => 'Ожидает',
-                                        'in_production' => 'В производстве',
-                                        'ready' => 'Готов',
-                                        'completed' => 'Завершен',
-                                    ][$order->status] ?? $order->status;
-                                ?>
-                                <span class="status-badge <?php echo e($statusClass); ?>"><?php echo e($statusLabel); ?></span>
+                                <span class="qty-value"><?php echo e($order->total_quantity); ?> шт</span>
+                            </td>
+                            <td class="text-right">
+                                <strong class="price-value"><?php echo e(number_format($order->total_quantity * 13550, 0, ',', ' ')); ?> ₽</strong>
+                            </td>
+                            <td class="text-center">
+                                <?php if($order->orderStatus): ?>
+                                    <span class="status-badge" style="background-color: <?php echo e($order->orderStatus->color); ?>;">
+                                        <?php echo e($order->orderStatus->name); ?>
+
+                                    </span>
+                                <?php else: ?>
+                                    <span class="status-badge">Не указан</span>
+                                <?php endif; ?>
                             </td>
                             <td class="text-center">
                                 <div class="action-buttons">
-                                    <a href="<?php echo e(route('production-orders.show', $order)); ?>" class="btn-icon btn-view" title="Просмотр">
+                                    <a href="<?php echo e(route('production-orders.show', $order->id)); ?>" class="btn-icon btn-view" title="Просмотр">
                                         <svg class="icon">
                                             <use xlink:href="#icon-arrow-right"></use>
                                         </svg>

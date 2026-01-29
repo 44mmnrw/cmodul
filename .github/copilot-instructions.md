@@ -10,7 +10,9 @@
 
 - **Backend**: Laravel 12 с PHP 8.2+
 - **Frontend**: Tailwind CSS 4 + Vite для HMR разработки  
-- **БД**: SQLite (по умолчанию) или MySQL
+- **БД**: **MySQL** (хост: 127.0.0.1, порт: 3306, база: cmodul) — ⚠️ НЕ SQLite!
+  - Для queries используйте MySQL синтаксис: `DESCRIBE`, `SHOW`, `INFORMATION_SCHEMA`
+  - Не используйте SQLite-специфичные команды: `PRAGMA`, `.schema` и т.п.
 - **Тестирование**: PHPUnit 11 + Mockery
 - **Сборка**: npm + Vite для JS/CSS; `composer` для PHP
 

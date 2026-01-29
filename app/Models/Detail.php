@@ -60,7 +60,7 @@ class Detail extends Model
             'slave_id',
             'id',
             'id'
-        );
+        )->withPivot('quantity');
     }
 
     // Остатки товара на складе (только для Type 2)

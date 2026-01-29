@@ -120,7 +120,8 @@
                         <th>Номер заказа</th>
                         <th>Дата / Срок</th>
                         <th>План. дата</th>
-                        <th class="text-center">Шкафов</th>
+                        <th class="text-center">Конфигов</th>
+                        <th class="text-center">Кол-во</th>
                         <th class="text-right">Сумма</th>
                         <th class="text-center">Статус</th>
                         <th class="text-center">Действия</th>
@@ -130,7 +131,7 @@
                     @foreach($orders as $order)
                         <tr>
                             <td>
-                                <strong class="order-number">ПЗ-{{ $order->id }}</strong>
+                                <strong class="order-number">{{ $order->order->order_num }}</strong>
                             </td>
                             <td>
                                 <div class="date-cell">
@@ -146,31 +147,26 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <span class="qty-value">{{ $order->quantity_ordered }} шт</span>
-                            </td>
-                            <td class="text-right">
-                                <strong class="price-value">{{ number_format($order->quantity_ordered * 13550, 0, ',', ' ') }} ₽</strong>
+                                <span class="qty-value">{{ $order->config_count }} шт</span>
                             </td>
                             <td class="text-center">
-                                @php
-                                    $statusClass = [
-                                        'ordering' => 'status-ordering',
-                                        'in_production' => 'status-in-production',
-                                        'ready' => 'status-ready',
-                                        'completed' => 'status-completed',
-                                    ][$order->status] ?? 'status-default';
-                                    $statusLabel = [
-                                        'ordering' => 'Ожидает',
-                                        'in_production' => 'В производстве',
-                                        'ready' => 'Готов',
-                                        'completed' => 'Завершен',
-                                    ][$order->status] ?? $order->status;
-                                @endphp
-                                <span class="status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                                <span class="qty-value">{{ $order->total_quantity }} шт</span>
+                            </td>
+                            <td class="text-right">
+                                <strong class="price-value">{{ number_format($order->total_quantity * 13550, 0, ',', ' ') }} ₽</strong>
+                            </td>
+                            <td class="text-center">
+                                @if($order->orderStatus)
+                                    <span class="status-badge" style="background-color: {{ $order->orderStatus->color }};">
+                                        {{ $order->orderStatus->name }}
+                                    </span>
+                                @else
+                                    <span class="status-badge">Не указан</span>
+                                @endif
                             </td>
                             <td class="text-center">
                                 <div class="action-buttons">
-                                    <a href="{{ route('production-orders.show', $order) }}" class="btn-icon btn-view" title="Просмотр">
+                                    <a href="{{ route('production-orders.show', $order->id) }}" class="btn-icon btn-view" title="Просмотр">
                                         <svg class="icon">
                                             <use xlink:href="#icon-arrow-right"></use>
                                         </svg>

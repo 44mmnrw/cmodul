@@ -9,12 +9,14 @@ class ProductionOrder extends Model
     protected $table = 'production_orders';
     
     protected $fillable = [
+        'order_id',
         'product_id',
         'quantity_ordered',
         'quantity_received',
-        'status',
+        'status_id',
         'planned_date',
         'notes',
+        'reference_order',
     ];
 
     protected $casts = [
@@ -22,11 +24,27 @@ class ProductionOrder extends Model
     ];
 
     /**
+     * Связь с заказом (Order)
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
+
+    /**
      * Компонент (Type 2), который заказан в производство
      */
     public function product()
     {
         return $this->belongsTo(Detail::class, 'product_id');
+    }
+
+    /**
+     * Статус производственного заказа
+     */
+    public function orderStatus()
+    {
+        return $this->belongsTo(ProductionOrderStatus::class, 'status_id');
     }
 
     /**
@@ -80,4 +98,6 @@ class ProductionOrder extends Model
         
         return $this->save();
     }
+
+
 }

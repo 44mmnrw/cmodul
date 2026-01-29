@@ -3,40 +3,55 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProductionOrder;
+use App\Models\Order;
 use App\Models\Detail;
 use Illuminate\Http\Request;
 
 class ProductionOrderController extends Controller
 {
-    /**
-     * Показать список всех производственных заказов
-     */
     public function index(Request $request)
     {
-        $query = ProductionOrder::with('product');
+        $query = ProductionOrder::with('order', 'orderStatus')
+            ->selectRaw('order_id, status_id, MIN(id) as id, MIN(created_at) as created_at, MIN(planned_date) as planned_date, COUNT(*) as config_count, SUM(quantity_ordered) as total_quantity, MIN(notes) as notes')
+            ->groupBy('order_id', 'status_id');
         
-        // Фильтр по статусу
         if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
+            $query->whereHas('orderStatus', function ($q) use ($request) {
+                $statusNames = [
+                    'ordering' => 'Ожидает',
+                    'in_production' => 'В производстве',
+                    'ready' => 'Готов',
+                    'completed' => 'Завершен',
+                ];
+                $statusName = $statusNames[$request->status] ?? $request->status;
+                $q->where('name', $statusName);
+            });
         }
         
-        // Поиск по компоненту или примечаниям
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('product', function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%");
-            })->orWhere('notes', 'like', "%$search%");
+            $query->where('notes', 'like', "%$search%")
+                  ->orWhereHas('order', function ($q) use ($search) {
+                      $q->where('order_num', 'like', "%$search%");
+                  });
         }
         
         $orders = $query->orderByDesc('created_at')->paginate(10);
         
-        // Статистика по статусам
         $stats = [
             'total' => ProductionOrder::count(),
-            'ordering' => ProductionOrder::where('status', 'ordering')->count(),
-            'in_production' => ProductionOrder::where('status', 'in_production')->count(),
-            'ready' => ProductionOrder::where('status', 'ready')->count(),
-            'completed' => ProductionOrder::where('status', 'completed')->count(),
+            'ordering' => ProductionOrder::whereHas('orderStatus', function ($q) {
+                $q->where('name', 'Ожидает');
+            })->count(),
+            'in_production' => ProductionOrder::whereHas('orderStatus', function ($q) {
+                $q->where('name', 'В производстве');
+            })->count(),
+            'ready' => ProductionOrder::whereHas('orderStatus', function ($q) {
+                $q->where('name', 'Готов');
+            })->count(),
+            'completed' => ProductionOrder::whereHas('orderStatus', function ($q) {
+                $q->where('name', 'Завершен');
+            })->count(),
         ];
         
         return view('production-orders.index', [
@@ -47,90 +62,127 @@ class ProductionOrderController extends Controller
         ]);
     }
 
-    /**
-     * Показать форму создания нового заказа
-     */
     public function create()
     {
-        $components = Detail::where('product_type_id', 2)
+        $components = Detail::where('product_type_id', 1)
             ->orderBy('name')
             ->get();
+        
+        $statuses = \App\Models\ProductionOrderStatus::orderBy('sort_order')->get();
+        
+        $orders = null;
+        if (request()->filled('edit')) {
+            $firstOrder = ProductionOrder::with('product', 'orderStatus', 'order')->find(request('edit'));
+            if ($firstOrder) {
+                $orders = ProductionOrder::where('order_id', $firstOrder->order_id)
+                    ->with('product', 'orderStatus', 'order')
+                    ->orderBy('id')
+                    ->get();
+            }
+        }
         
         return view('production-orders.create', [
             'components' => $components,
+            'statuses' => $statuses,
+            'orders' => $orders,
         ]);
     }
 
-    /**
-     * Сохранить новый заказ
-     */
     public function store(Request $request)
     {
+        $isEditing = $request->filled('edit_id');
+        
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity_ordered' => 'required|integer|min:1',
+            'order_date' => 'nullable|date',
+            'status_id' => 'nullable|exists:production_order_statuses,id',
+            'configs' => 'required|array|min:1',
+            'configs.*.product_id' => 'required|exists:products,id',
+            'configs.*.quantity' => 'required|integer|min:1',
+            'configs.*.planned_date' => 'required|date',
             'notes' => 'nullable|string',
         ]);
 
-        // Проверить, что это Type 2 компонент
-        $product = Detail::findOrFail($validated['product_id']);
-        if ($product->product_type_id !== 2) {
-            return back()->withErrors(['product_id' => 'Можно заказывать только компоненты Type 2']);
+        $orderId = null;
+        if ($isEditing) {
+            $existingOrder = ProductionOrder::find($request->input('edit_id'));
+            $orderId = $existingOrder->order_id;
+            ProductionOrder::where('order_id', $orderId)->delete();
+        } else {
+            $orderNum = self::generateOrderNum();
+            $order = Order::create([
+                'order_num' => $orderNum,
+                'date' => now(),
+            ]);
+            $orderId = $order->id;
+        }
+        
+        $statusId = $validated['status_id'] ?? \App\Models\ProductionOrderStatus::where('name', 'Ожидает')->first()?->id;
+
+        foreach ($validated['configs'] as $config) {
+            $product = Detail::findOrFail($config['product_id']);
+            if ($product->product_type_id !== 1) {
+                return back()->withErrors(['configs' => 'Можно заказывать только конфигурации Type 1']);
+            }
+
+            ProductionOrder::create([
+                'order_id' => $orderId,
+                'product_id' => $config['product_id'],
+                'quantity_ordered' => $config['quantity'],
+                'planned_date' => $config['planned_date'],
+                'notes' => $validated['notes'] ?? null,
+                'status_id' => $statusId,
+            ]);
         }
 
-        ProductionOrder::create($validated);
-
+        $message = $isEditing ? 'Заказ обновлен' : 'Заказ в производство создан';
         return redirect()->route('production-orders.index')
-            ->with('success', 'Заказ в производство создан');
+            ->with('success', $message);
     }
 
-    /**
-     * Показать детали заказа
-     */
+    private static function generateOrderNum()
+    {
+        $lastOrder = Order::latest('id')->first();
+        $nextNumber = ($lastOrder ? $lastOrder->id : 0) + 1;
+        return 'ПО-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
+
     public function show(ProductionOrder $productionOrder)
     {
-        $productionOrder->load('product');
-        
-        return view('production-orders.show', [
-            'order' => $productionOrder,
-        ]);
-    }
-
-    /**
-     * Показать форму редактирования
-     */
-    public function edit(ProductionOrder $productionOrder)
-    {
-        $components = Detail::where('product_type_id', 2)
-            ->orderBy('name')
+        $orders = ProductionOrder::where('order_id', $productionOrder->order_id)
+            ->with('product', 'orderStatus', 'order')
+            ->orderBy('id')
             ->get();
         
-        return view('production-orders.edit', [
-            'order' => $productionOrder,
-            'components' => $components,
+        return view('production-orders.show', [
+            'orders' => $orders,
         ]);
     }
 
-    /**
-     * Обновить заказ
-     */
+    public function edit(ProductionOrder $productionOrder)
+    {
+        return redirect()->route('production-orders.create', ['edit' => $productionOrder->id]);
+    }
+
     public function update(Request $request, ProductionOrder $productionOrder)
     {
         $validated = $request->validate([
-            'status' => 'required|in:ordering,in_production,ready,completed',
+            'status_id' => 'required|exists:production_order_statuses,id',
             'quantity_received' => 'required|integer|min:0|max:' . $productionOrder->quantity_ordered,
             'notes' => 'nullable|string',
         ]);
 
-        $productionOrder->update($validated);
+        ProductionOrder::where('order_id', $productionOrder->order_id)
+            ->update([
+                'status_id' => $validated['status_id'],
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+        $productionOrder->update(['quantity_received' => $validated['quantity_received']]);
 
         return redirect()->route('production-orders.show', $productionOrder)
             ->with('success', 'Заказ обновлен');
     }
 
-    /**
-     * Обновить статус заказа (AJAX)
-     */
     public function updateStatus(Request $request, ProductionOrder $productionOrder)
     {
         $validated = $request->validate([
@@ -146,9 +198,6 @@ class ProductionOrderController extends Controller
         ]);
     }
 
-    /**
-     * Зафиксировать приемку товара
-     */
     public function receiveQuantity(Request $request, ProductionOrder $productionOrder)
     {
         $validated = $request->validate([
@@ -161,12 +210,10 @@ class ProductionOrderController extends Controller
             ->with('success', 'Товар принят в количестве ' . $validated['quantity'] . ' шт');
     }
 
-    /**
-     * Удалить заказ
-     */
     public function destroy(ProductionOrder $productionOrder)
     {
-        $productionOrder->delete();
+        $orderId = $productionOrder->order_id;
+        ProductionOrder::where('order_id', $orderId)->delete();
 
         return redirect()->route('production-orders.index')
             ->with('success', 'Заказ удален');

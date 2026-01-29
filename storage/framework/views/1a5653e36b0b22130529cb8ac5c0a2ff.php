@@ -64,6 +64,20 @@
             </svg>
             <span>Производство</span>
         </a>
+
+        <a href="<?php echo e(route('production-planning.index')); ?>" class="nav-button <?php echo e(request()->is('production-planning*') ? 'active' : ''); ?>">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 13h2v8H3zm4-8h2v16H7zm4-2h2v18h-2zm4 4h2v14h-2zm4-4h2v18h-2z" fill="currentColor"/>
+            </svg>
+            <span>Планирование</span>
+        </a>
+
+        <a href="<?php echo e(route('production-order-statuses.index')); ?>" class="nav-button <?php echo e(request()->is('production-order-statuses*') ? 'active' : ''); ?>">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+            </svg>
+            <span>Статусы</span>
+        </a>
     </div>
 </nav>
 <?php /**PATH C:\laragon\www\Cmodul\resources\views/components/navigation.blade.php ENDPATH**/ ?>
