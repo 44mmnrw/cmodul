@@ -1,21 +1,21 @@
-@extends('layout')
 
-@section('title', $orders ? 'Редактировать производственный заказ' : 'Новый производственный заказ')
 
-@section('content')
+<?php $__env->startSection('title', $orders ? 'Редактировать производственный заказ' : 'Новый производственный заказ'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="order-form-container">
     <div class="order-form-card">
         <!-- Header -->
         <div class="form-header">
-            <h3 class="form-heading">{{ $orders ? 'Редактировать заказ' : 'Форма производственного заказа' }}</h3>
-            <p class="form-subheading">{{ $orders ? $orders->first()?->order->order_num . ' · ' . $orders->first()?->created_at->format('d.m.Y') : 'Заполните данные заказчика и список производимых шкафов' }}</p>
+            <h3 class="form-heading"><?php echo e($orders ? 'Редактировать заказ' : 'Форма производственного заказа'); ?></h3>
+            <p class="form-subheading"><?php echo e($orders ? $orders->first()?->order->order_num . ' · ' . $orders->first()?->created_at->format('d.m.Y') : 'Заполните данные заказчика и список производимых шкафов'); ?></p>
         </div>
 
-        <form action="{{ route('production-orders.store') }}" method="POST" class="order-form">
-            @csrf
-            @if($orders)
-                <input type="hidden" name="edit_id" value="{{ $orders->first()?->id }}">
-            @endif
+        <form action="<?php echo e(route('production-orders.store')); ?>" method="POST" class="order-form">
+            <?php echo csrf_field(); ?>
+            <?php if($orders): ?>
+                <input type="hidden" name="edit_id" value="<?php echo e($orders->first()?->id); ?>">
+            <?php endif; ?>
 
             <!-- Dates Row -->
             <div class="form-dates-row">
@@ -28,11 +28,18 @@
                         <svg class="date-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
                             <path d="M3 2V4M13 2V4M2 7H14M2 6H14C13.4477 6 13 6.44772 13 7V13C13 13.5523 13.4477 14 14 14H2C1.44772 14 1 13.5523 1 13V7C1 6.44772 1.44772 6 2 6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <input type="date" name="order_date" class="form-control date-input" value="{{ $orders && $orders->first()?->order?->order_date ? $orders->first()->order->order_date->format('Y-m-d') : date('Y-m-d') }}" required>
+                        <input type="date" name="order_date" class="form-control date-input" value="<?php echo e($orders && $orders->first()?->order?->order_date ? $orders->first()->order->order_date->format('Y-m-d') : date('Y-m-d')); ?>" required>
                     </div>
-                    @error('order_date')
-                        <span class="form-error">{{ $message }}</span>
-                    @enderror
+                    <?php $__errorArgs = ['order_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <span class="form-error"><?php echo e($message); ?></span>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -55,25 +62,25 @@
                             </tr>
                         </thead>
                         <tbody id="configsTableBody">
-                            @if($orders)
-                                @php $rowNum = 0; @endphp
-                                @foreach($orders as $order)
-                                    @php $rowNum++; @endphp
-                                    <tr class="config-row" data-row="{{ $rowNum }}">
-                                        <td class="col-number"><span class="row-number">{{ $rowNum }}</span></td>
+                            <?php if($orders): ?>
+                                <?php $rowNum = 0; ?>
+                                <?php $__currentLoopData = $orders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $rowNum++; ?>
+                                    <tr class="config-row" data-row="<?php echo e($rowNum); ?>">
+                                        <td class="col-number"><span class="row-number"><?php echo e($rowNum); ?></span></td>
                                         <td class="col-config">
-                                            <select name="configs[{{ $rowNum }}][product_id]" class="config-select form-control">
+                                            <select name="configs[<?php echo e($rowNum); ?>][product_id]" class="config-select form-control">
                                                 <option value="">Выберите конфигурацию...</option>
-                                                @foreach($components as $component)
-                                                    <option value="{{ $component->id }}" {{ (int)$component->id === (int)$order->product_id ? 'selected' : '' }}>{{ $component->name }}</option>
-                                                @endforeach
+                                                <?php $__currentLoopData = $components; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($component->id); ?>" <?php echo e((int)$component->id === (int)$order->product_id ? 'selected' : ''); ?>><?php echo e($component->name); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </select>
                                         </td>
                                         <td class="col-quantity">
-                                            <input type="number" name="configs[{{ $rowNum }}][quantity]" class="config-qty form-control" min="1" placeholder="0" value="{{ $order->quantity_ordered }}">
+                                            <input type="number" name="configs[<?php echo e($rowNum); ?>][quantity]" class="config-qty form-control" min="1" placeholder="0" value="<?php echo e($order->quantity_ordered); ?>">
                                         </td>
                                         <td class="col-date">
-                                            <input type="date" name="configs[{{ $rowNum }}][planned_date]" class="form-control" required value="{{ $order->planned_date ? $order->planned_date->format('Y-m-d') : '' }}">
+                                            <input type="date" name="configs[<?php echo e($rowNum); ?>][planned_date]" class="form-control" required value="<?php echo e($order->planned_date ? $order->planned_date->format('Y-m-d') : ''); ?>">
                                         </td>
                                         <td class="col-actions">
                                             <button type="button" class="btn-delete" title="Удалить строку">
@@ -83,16 +90,16 @@
                                             </button>
                                         </td>
                                     </tr>
-                                @endforeach
-                            @else
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php else: ?>
                                 <tr class="config-row" data-row="1">
                                     <td class="col-number"><span class="row-number">1</span></td>
                                     <td class="col-config">
                                         <select name="configs[1][product_id]" class="config-select form-control">
                                             <option value="">Выберите конфигурацию...</option>
-                                            @foreach($components as $component)
-                                                <option value="{{ $component->id }}">{{ $component->name }}</option>
-                                            @endforeach
+                                            <?php $__currentLoopData = $components; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($component->id); ?>"><?php echo e($component->name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </td>
                                     <td class="col-quantity">
@@ -109,7 +116,7 @@
                                         </button>
                                     </td>
                                 </tr>
-                            @endif
+                            <?php endif; ?>
                         </tbody>
                     </table>
 
@@ -126,9 +133,16 @@
                     </div>
                 </div>
 
-                @error('configs')
-                    <span class="form-error">{{ $message }}</span>
-                @enderror
+                <?php $__errorArgs = ['configs'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <span class="form-error"><?php echo e($message); ?></span>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <!-- Status Selection -->
@@ -136,24 +150,39 @@
                 <label class="form-label">Статус заказа</label>
                 <select name="status_id" class="form-control form-select">
                     <option value="">Выберите статус...</option>
-                    @foreach($statuses as $status)
-                        <option value="{{ $status->id }}" {{ $orders && $orders->first()?->status_id === $status->id ? 'selected' : '' }}>
-                            {{ $status->name }}
+                    <?php $__currentLoopData = $statuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($status->id); ?>" <?php echo e($orders && $orders->first()?->status_id === $status->id ? 'selected' : ''); ?>>
+                            <?php echo e($status->name); ?>
+
                         </option>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
-                @error('status_id')
-                    <span class="form-error">{{ $message }}</span>
-                @enderror
+                <?php $__errorArgs = ['status_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <span class="form-error"><?php echo e($message); ?></span>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <!-- Notes -->
             <div class="form-group-col">
                 <label class="form-label">Примечания</label>
-                <textarea name="notes" class="form-control form-textarea" placeholder="Дополнительная информация о заказе...">{{ old('notes', $orders ? $orders->first()?->notes : '') }}</textarea>
-                @error('notes')
-                    <span class="form-error">{{ $message }}</span>
-                @enderror
+                <textarea name="notes" class="form-control form-textarea" placeholder="Дополнительная информация о заказе..."><?php echo e(old('notes', $orders ? $orders->first()?->notes : '')); ?></textarea>
+                <?php $__errorArgs = ['notes'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <span class="form-error"><?php echo e($message); ?></span>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <!-- Form Actions -->
@@ -163,7 +192,8 @@
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M2 14V8M8 2L14 8V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    {{ $orders ? 'Обновить заказ' : 'Разместить заказ' }}
+                    <?php echo e($orders ? 'Обновить заказ' : 'Разместить заказ'); ?>
+
                 </button>
             </div>
         </form>
@@ -209,9 +239,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <td class="col-config">
                 <select name="configs[${rowCounter}][product_id]" class="config-select form-control">
                     <option value="">Выберите конфигурацию...</option>
-                    @foreach($components as $component)
-                        <option value="{{ $component->id }}">{{ $component->name }}</option>
-                    @endforeach
+                    <?php $__currentLoopData = $components; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($component->id); ?>"><?php echo e($component->name); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </td>
             <td class="col-quantity">
@@ -253,4 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCounters();
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Cmodul\resources\views/production-orders/create.blade.php ENDPATH**/ ?>

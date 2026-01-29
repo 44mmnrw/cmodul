@@ -10,11 +10,14 @@ class Order extends Model
 
     protected $fillable = [
         'order_num',
-        'date',
+        'order_date',
+        'planned_date',
+        'status',
     ];
 
     protected $casts = [
-        'date' => 'datetime',
+        'order_date' => 'datetime',
+        'planned_date' => 'datetime',
     ];
 
     /**
@@ -22,6 +25,6 @@ class Order extends Model
      */
     public function productionOrders()
     {
-        return $this->hasMany(ProductionOrder::class, 'order_id');
+        return $this->hasMany(ProductionOrder::class, 'reference_order');
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\CabinetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ConfigController;
@@ -15,18 +16,50 @@ Route::get('/', function () {
     return view('index');
 });
 
-Route::get('/places', function () {
-    $items = \App\Models\Detail::where('product_type_id', 2)
+Route::get('/items', function (Request $request) {
+    $type = $request->get('type', 2); // Тип по умолчанию 2 (компоненты)
+    $sort = $request->get('sort', 'name');
+    $direction = $request->get('direction', 'asc');
+    
+    // Проверяем тип
+    if (!in_array($type, [1, 2, 3])) {
+        $type = 2;
+    }
+    
+    $allowedSorts = ['name', 'scu', 'category_id', 'created_at'];
+    if (!in_array($sort, $allowedSorts)) {
+        $sort = 'name';
+    }
+    if (!in_array($direction, ['asc', 'desc'])) {
+        $direction = 'asc';
+    }
+    
+    $items = \App\Models\Detail::where('product_type_id', $type)
         ->with('productType', 'category', 'stock')
-        ->paginate(10);
+        ->orderBy($sort, $direction)
+        ->paginate(10)
+        ->appends($request->query());
+    
+    $typeNames = [1 => 'Шкафы', 2 => 'Компоненты', 3 => 'Детали'];
+    
     return view('details.list', [
         'items' => $items,
-        'pageTitle' => 'Компоненты',
-        'pageSubtitle' => 'Управление компонентами и местами размещения',
-        'addButtonText' => 'Добавить компонент',
-        'addButtonUrl' => route('details.create'),
-        'emptyMessage' => 'Компоненты не найдены.'
+        'pageTitle' => 'Изделия',
+        'pageSubtitle' => 'Управление ' . strtolower($typeNames[$type]),
+        'addButtonText' => $type == 2 ? 'Добавить компонент' : ($type == 3 ? 'Добавить деталь' : 'Добавить шкаф'),
+        'addButtonUrl' => $type == 1 ? route('configurations.create') : route('details.create'),
+        'emptyMessage' => $typeNames[$type] . ' не найдены.',
+        'currentSort' => $sort,
+        'currentDirection' => $direction,
+        'sortBaseUrl' => '/items',
+        'currentType' => $type,
+        'typeNames' => $typeNames,
     ]);
+});
+
+// Оставляем /places как редирект для совместимости
+Route::get('/places', function (Request $request) {
+    return redirect('/items?type=2' . ($request->getQueryString() ? '&' . $request->getQueryString() : ''));
 });
 
 Route::get('/virtual-stock', [StockBalanceController::class, 'virtualStock'])->name('stock.virtual-stock');
@@ -46,8 +79,8 @@ Route::get('/configurations', function () {
 Route::get('/configurations/create', [ConfigController::class, 'create'])->name('configurations.create');
 
 Route::get('/configurations/{id}', function ($id) {
-    $cabinet = \App\Models\Detail::where('product_type_id', 1)
-        ->with('componentsInConfiguration', 'productType')
+    $cabinet = \App\Models\Detail::whereIn('product_type_id', [1, 2])
+        ->with('componentsInConfiguration', 'productType', 'stock')
         ->findOrFail($id);
     return view('configurations.show', ['cabinet' => $cabinet]);
 })->name('configuration-detail');
@@ -91,4 +124,5 @@ Route::resource('production-order-statuses', ProductionOrderStatusController::cl
 // Маршруты для планирования производства
 Route::get('/production-planning', [ProductionPlanningController::class, 'index'])->name('production-planning.index');
 Route::post('/production-planning/analyze', [ProductionPlanningController::class, 'analyzeRequirements'])->name('production-planning.analyze');
+Route::post('/production-planning/approve', [ProductionPlanningController::class, 'approvePlan'])->name('production-planning.approve');
 

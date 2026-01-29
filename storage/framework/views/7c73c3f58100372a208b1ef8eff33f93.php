@@ -1,6 +1,6 @@
-@extends('layout')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="config-detail-wrapper">
     <!-- Header Section -->
     <div class="config-detail-header">
@@ -10,9 +10,9 @@
             </svg>
         </button>
         <div class="config-detail-header-content">
-            <h1 class="config-detail-title">{{ $cabinet->name ?? 'Шкаф напольный 42U стандарт' }}</h1>
+            <h1 class="config-detail-title"><?php echo e($cabinet->name ?? 'Шкаф напольный 42U стандарт'); ?></h1>
             <div class="config-detail-meta">
-                <span class="config-code">{{ $cabinet->scu ?? 'CAB-42U-600-ST' }}</span>
+                <span class="config-code"><?php echo e($cabinet->scu ?? 'CAB-42U-600-ST'); ?></span>
                 <span class="status-badge status-available">
                     <svg class="status-icon" viewBox="0 0 12 12" fill="currentColor">
                         <circle cx="6" cy="6" r="4"/>
@@ -21,7 +21,7 @@
                 </span>
             </div>
         </div>
-        <a href="{{ route('configurations.edit', $cabinet->id) }}" class="btn btn-primary" title="Редактировать конфигурацию">
+        <a href="<?php echo e(route('configurations.edit', $cabinet->id)); ?>" class="btn btn-primary" title="Редактировать конфигурацию">
             <svg class="icon-pencil">
                 <use xlink:href="#icon-pencil"></use>
             </svg>
@@ -42,12 +42,13 @@
                     <h3 class="card-title">Описание</h3>
                 </div>
                 <p class="config-description">
-                    {{ $cabinet->description ?? 'Стандартный шкаф 42U с основанием 600x600, боковыми панелями 2000мм и стеклянной дверью' }}
+                    <?php echo e($cabinet->description ?? 'Стандартный шкаф 42U с основанием 600x600, боковыми панелями 2000мм и стеклянной дверью'); ?>
+
                 </p>
             </div>
 
             <!-- Virtual Stock Card -->
-            @php
+            <?php
                 $virtualStock = $cabinet->getVirtualStock();
                 $virtualQty = $virtualStock['quantity'] ?? 0;
                 $limitingComponent = $virtualStock['limiting_component'] ?? null;
@@ -56,7 +57,7 @@
                 
                 $statusLabel = $virtualQty >= 50 ? 'Высокий запас' : ($virtualQty >= 10 ? 'Средний запас' : 'Низкий запас');
                 $statusClass = $virtualQty >= 50 ? 'status-high' : ($virtualQty >= 10 ? 'status-medium' : 'status-low');
-            @endphp
+            ?>
             <div class="card config-card card-virtual-stock">
                 <div class="virtual-stock-header">
                     <div>
@@ -69,30 +70,30 @@
                 </div>
                 <div class="virtual-stock-body">
                     <div class="stock-quantity">
-                        <div class="quantity-number">{{ $virtualQty }}</div>
+                        <div class="quantity-number"><?php echo e($virtualQty); ?></div>
                         <div class="quantity-unit">
-                            @if($virtualQty % 10 == 1 && $virtualQty % 100 != 11)
+                            <?php if($virtualQty % 10 == 1 && $virtualQty % 100 != 11): ?>
                                 конфигурация
-                            @elseif(($virtualQty % 10 >= 2 && $virtualQty % 10 <= 4) && ($virtualQty % 100 < 10 || $virtualQty % 100 >= 20))
+                            <?php elseif(($virtualQty % 10 >= 2 && $virtualQty % 10 <= 4) && ($virtualQty % 100 < 10 || $virtualQty % 100 >= 20)): ?>
                                 конфигурации
-                            @else
+                            <?php else: ?>
                                 конфигураций
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="stock-info">
-                        <div class="stock-status {{ $statusClass }}">
-                            <div class="status-label">{{ $statusLabel }}</div>
-                            @if($limitingComponent)
+                        <div class="stock-status <?php echo e($statusClass); ?>">
+                            <div class="status-label"><?php echo e($statusLabel); ?></div>
+                            <?php if($limitingComponent): ?>
                             <div class="limiting-info">
-                                <p class="limiting-text">Лимитирует: {{ $limitingComponent->name }}</p>
-                                <p class="limiting-text">Доступно {{ $available }} шт, требуется {{ $requiredQty }} шт на конфигурацию</p>
+                                <p class="limiting-text">Лимитирует: <?php echo e($limitingComponent->name); ?></p>
+                                <p class="limiting-text">Доступно <?php echo e($available); ?> шт, требуется <?php echo e($requiredQty); ?> шт на конфигурацию</p>
                             </div>
-                            @else
+                            <?php else: ?>
                             <div class="limiting-info">
                                 <p class="limiting-text">Нет компонентов в конфигурации</p>
                             </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -120,8 +121,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($cabinet->componentsInConfiguration as $index => $component)
-                            @php
+                            <?php $__empty_1 = true; $__currentLoopData = $cabinet->componentsInConfiguration; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
                                 $types = ['blue', 'green', 'purple', 'orange', 'red'];
                                 $typeNames = ['Основание', 'Боковая панель', 'Дверь', 'Панель', 'Крышка'];
                                 $typeIndex = $index % count($types);
@@ -129,36 +130,36 @@
                                 $typeClass = 'component-type-' . $types[$typeIndex];
                                 $requiredQty = $component->pivot->quantity ?? 1;
                                 $available = $component->stock?->available ?? 0;
-                            @endphp
-                            <tr @if($index === 2) class="row-warning" @endif>
+                            ?>
+                            <tr <?php if($index === 2): ?> class="row-warning" <?php endif; ?>>
                                 <td>
-                                    <span class="component-type-badge {{ $typeClass }}">{{ $typeName }}</span>
+                                    <span class="component-type-badge <?php echo e($typeClass); ?>"><?php echo e($typeName); ?></span>
                                 </td>
                                 <td>
-                                    <a href="/places/{{ $component->scu }}" style="text-decoration: none; color: inherit; cursor: pointer;">
+                                    <a href="/places/<?php echo e($component->scu); ?>" style="text-decoration: none; color: inherit; cursor: pointer;">
                                         <div class="component-info">
-                                            <div class="component-name">{{ $component->name }}</div>
-                                            <div class="component-code">{{ $component->scu }}</div>
+                                            <div class="component-name"><?php echo e($component->name); ?></div>
+                                            <div class="component-code"><?php echo e($component->scu); ?></div>
                                         </div>
                                     </a>
                                 </td>
                                 <td>
                                     <div class="component-specs">
-                                        <div class="spec">{{ $component->description ?? 'Компонент' }}</div>
+                                        <div class="spec"><?php echo e($component->description ?? 'Компонент'); ?></div>
                                     </div>
                                 </td>
-                                <td class="text-center">{{ $requiredQty }}</td>
-                                <td class="text-center">{{ $available }}</td>
-                                <td class="text-right">{{ $component->price ?? '0 ₽' }}</td>
-                                <td class="text-right">{{ $component->price ?? '0 ₽' }}</td>
+                                <td class="text-center"><?php echo e($requiredQty); ?></td>
+                                <td class="text-center"><?php echo e($available); ?></td>
+                                <td class="text-right"><?php echo e($component->price ?? '0 ₽'); ?></td>
+                                <td class="text-right"><?php echo e($component->price ?? '0 ₽'); ?></td>
                             </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="7" style="text-align: center; padding: 30px;">
                                     Нет компонентов в конфигурации
                                 </td>
                             </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -196,12 +197,12 @@
             </div>
 
             <!-- Statistics Card -->
-            @php
+            <?php
                 $totalComponentsCount = $cabinet->componentsInConfiguration->sum(fn($c) => $c->pivot->quantity ?? 1);
                 $uniqueTypes = $cabinet->componentsInConfiguration->count();
                 $totalCost = $cabinet->componentsInConfiguration
                     ->sum(fn($c) => ($c->price ?? 0) * ($c->pivot->quantity ?? 1));
-            @endphp
+            ?>
             <div class="card config-card">
                 <div class="config-card-header">
                     <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -212,23 +213,23 @@
                 <div class="stats-details">
                     <div class="stat-row">
                         <span class="stat-label">Всего компонентов:</span>
-                        <span class="stat-value">{{ $totalComponentsCount }}&nbsp;шт</span>
+                        <span class="stat-value"><?php echo e($totalComponentsCount); ?>&nbsp;шт</span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Уникальных типов:</span>
-                        <span class="stat-value">{{ $uniqueTypes }}</span>
+                        <span class="stat-value"><?php echo e($uniqueTypes); ?></span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Дата создания:</span>
-                        <span class="stat-value">{{ $cabinet->created_at->format('Y-m-d') }}</span>
+                        <span class="stat-value"><?php echo e($cabinet->created_at->format('Y-m-d')); ?></span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Виртуальный запас:</span>
-                        <span class="stat-value">{{ $virtualQty }}&nbsp;шт</span>
+                        <span class="stat-value"><?php echo e($virtualQty); ?>&nbsp;шт</span>
                     </div>
                     <div class="stat-row stat-row-total">
                         <span class="stat-label">Сумма конфигурации:</span>
-                        <span class="stat-value">{{ number_format($totalCost, 0, '.', ' ') }}&nbsp;₽</span>
+                        <span class="stat-value"><?php echo e(number_format($totalCost, 0, '.', ' ')); ?>&nbsp;₽</span>
                     </div>
                 </div>
             </div>
@@ -263,4 +264,6 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Cmodul\resources\views/configurations/show.blade.php ENDPATH**/ ?>

@@ -1,6 +1,10 @@
 @extends('layout')
 
 @section('content')
+<!-- Modal Components -->
+<x-confirm-modal />
+<x-alert-modal />
+
 <div class="production-planning-container">
     <!-- Header -->
     <div class="planning-header">
@@ -20,7 +24,7 @@
         </div>
         
         <!-- Action Button -->
-        <button class="planning-header-action">
+        <button class="planning-header-action" onclick="approvePlan()">
             <svg viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10.5 3.5H9.5V9.5H3.5V10.5H9.5V16.5H10.5V10.5H16.5V9.5H10.5V3.5Z"/>
             </svg>
@@ -255,6 +259,9 @@ function toggleAllOrders() {
     updateAnalysis();
 }
 
+// Глобальная переменная для хранения результатов анализа
+let lastAnalysisComponents = [];
+
 // Обновить анализ при изменении выбора
 async function updateAnalysis() {
     const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
@@ -276,6 +283,7 @@ async function updateAnalysis() {
         document.getElementById('need-produce').textContent = '0';
         document.getElementById('requirements-tbody').innerHTML = '<tr><td colspan="4" class="empty-state">Выберите заказы для расчета потребности</td></tr>';
         document.getElementById('requirements-tfoot').style.display = 'none';
+        lastAnalysisComponents = [];
         return;
     }
 
@@ -291,6 +299,9 @@ async function updateAnalysis() {
         });
 
         const data = await response.json();
+
+        // Сохранить компоненты для использования в approvePlan
+        lastAnalysisComponents = data.components;
 
         // Обновить счетчики
         document.getElementById('total-required').textContent = data.total_required;
@@ -351,6 +362,132 @@ function updateRequirementsTable(components) {
     document.getElementById('total-in-stock').textContent = totalInStock;
     document.getElementById('total-need-produce-footer').textContent = totalNeedProduce;
     tfoot.style.display = 'table-footer-group';
+}
+
+// Утвердить план и создать заказ
+async function approvePlan() {
+    console.log('=== APPROVE PLAN CALLED ===');
+    
+    // Получить выбранные заказы
+    const selectedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+    console.log('Selected checkboxes:', selectedCheckboxes.length);
+    
+    if (selectedCheckboxes.length === 0) {
+        showAlert('Ошибка', 'Пожалуйста, выберите хотя бы один заказ для утверждения');
+        return;
+    }
+
+    // Собрать ВСЕ ID позиций (production_orders) из выбранных групп
+    const orderIds = [];
+    selectedCheckboxes.forEach(cb => {
+        const positionIds = JSON.parse(cb.dataset.orderNums);
+        orderIds.push(...positionIds);
+    });
+
+    console.log('Order IDs collected:', orderIds);
+    console.log('Last analysis components:', lastAnalysisComponents);
+
+    // Проверить, есть ли компоненты для производства
+    if (lastAnalysisComponents.length === 0) {
+        showAlert('Ошибка', 'Сначала выберите заказы и дождитесь расчета потребности');
+        return;
+    }
+
+    // Подсчитать, сколько компонентов нужно произвести
+    let needToProduce = 0;
+    lastAnalysisComponents.forEach(comp => {
+        if (comp.need_to_produce > 0) {
+            needToProduce++;
+        }
+    });
+
+    console.log('Need to produce:', needToProduce);
+
+    if (needToProduce === 0) {
+        showAlert('Информация', 'Все необходимые компоненты уже есть на складе. Нечего производить.');
+        return;
+    }
+
+    // Правильное склонение слова "компонент"
+    let componentText = '';
+    if (needToProduce === 1) {
+        componentText = '1 компонент';
+    } else if (needToProduce >= 2 && needToProduce <= 4) {
+        componentText = `${needToProduce} компонента`;
+    } else {
+        componentText = `${needToProduce} компонентов`;
+    }
+
+    console.log('Component text:', componentText);
+
+    // Показать подтверждение через модальное окно
+    const confirmMessage = `Вы уверены, что хотите утвердить план и создать заказ?`;
+    const confirmSubtext = `Будут созданы производственные позиции для: ${componentText}. Статус исходного заказа изменится на "В производстве".`;
+    
+    console.log('Opening confirm modal');
+    
+    openConfirmModal(
+        'Утвердить план',
+        confirmMessage,
+        confirmSubtext,
+        'Утвердить',
+        async () => {
+            console.log('Confirm modal confirmed, submitting plan...');
+            await submitApprovePlan(orderIds, lastAnalysisComponents);
+        }
+    );
+}
+
+async function submitApprovePlan(orderIds, components) {
+    try {
+        console.log('=== APPROVE PLAN START ===');
+        console.log('Order IDs:', orderIds);
+        console.log('Components:', components);
+        
+        const payload = { 
+            order_ids: orderIds,
+            components: components
+        };
+        
+        console.log('Full payload:', JSON.stringify(payload));
+        console.log('Route:', '{{ route("production-planning.approve") }}');
+
+        // Отправить запрос на сервер
+        const response = await fetch('{{ route("production-planning.approve") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (data.success) {
+            showAlert(
+                '✅ Успех',
+                data.message,
+                () => {
+                    // Перенаправить на страницу производственных заказов
+                    window.location.href = data.redirect;
+                }
+            );
+        } else {
+            showAlert('❌ Ошибка', `Ошибка: ${data.message}`);
+        }
+        
+    } catch (error) {
+        console.error('=== APPROVE PLAN ERROR ===');
+        console.error('Error:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        showAlert('❌ Ошибка', 'Ошибка при создании заказа. Проверьте консоль браузера.');
+    }
 }
 </script>
 @endsection

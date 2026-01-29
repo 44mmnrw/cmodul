@@ -20,35 +20,6 @@
     justify-content: space-between;
 }
 
-.header-back-button {
-    flex-shrink: 0;
-}
-
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: white;
-    border: 1px solid #e5e7eb;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.btn-back:hover {
-    background: #f9fafb;
-    color: #374151;
-}
-
-.btn-back svg {
-    width: 20px;
-    height: 20px;
-}
-
 .header-content {
     flex: 1;
     display: flex;

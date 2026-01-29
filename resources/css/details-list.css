@@ -75,6 +75,27 @@
     border: none;
 }
 
+.details-table th a.sortable-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #4a5565;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.details-table th a.sortable-header:hover {
+    color: #101828;
+}
+
+.sort-indicator {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6366f1;
+    display: inline-block;
+}
+
 .details-table th.text-center {
     text-align: center;
 }

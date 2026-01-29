@@ -10,11 +10,26 @@ class DetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Получаем параметры сортировки
+        $sort = $request->get('sort', 'name');
+        $direction = $request->get('direction', 'asc');
+        
+        // Проверяем, чтобы сортировка была безопасной
+        $allowedSorts = ['name', 'scu', 'category_id', 'created_at'];
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'name';
+        }
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+        
         $items = Detail::where('product_type_id', 3)
             ->with('productType', 'category', 'stock')
-            ->paginate(10);
+            ->orderBy($sort, $direction)
+            ->paginate(10)
+            ->appends($request->query());
         
         return view('details.list', [
             'items' => $items,
@@ -22,7 +37,10 @@ class DetailController extends Controller
             'pageSubtitle' => 'Управление деталями и компонентами',
             'addButtonText' => 'Добавить деталь',
             'addButtonUrl' => route('details.create'),
-            'emptyMessage' => 'Детали не найдены.'
+            'emptyMessage' => 'Детали не найдены.',
+            'currentSort' => $sort,
+            'currentDirection' => $direction,
+            'sortBaseUrl' => route('details.index'),
         ]);
     }
 
@@ -33,7 +51,8 @@ class DetailController extends Controller
     {
         $categories = \App\Models\Category::all();
         $sources = \App\Models\Source::all();
-        return view('details.create', ['categories' => $categories, 'sources' => $sources]);
+        $productTypes = \App\Models\ProductType::all();
+        return view('details.create', ['categories' => $categories, 'sources' => $sources, 'productTypes' => $productTypes]);
     }
 
     /**
@@ -50,6 +69,7 @@ class DetailController extends Controller
             'scu' => 'required|string|max:50',
             'category_id' => 'required|exists:categories,id',
             'source_id' => 'nullable|exists:sources,id',
+            'product_type_id' => 'nullable|exists:product_types,id',
             'description' => 'nullable|string',
             'material' => 'nullable|string|max:255',
         ]);
@@ -75,10 +95,12 @@ class DetailController extends Controller
     {
         $categories = \App\Models\Category::all();
         $sources = \App\Models\Source::all();
+        $productTypes = \App\Models\ProductType::all();
         return view('details.edit', [
             'detail' => $detail,
             'categories' => $categories,
-            'sources' => $sources
+            'sources' => $sources,
+            'productTypes' => $productTypes
         ]);
     }
 

@@ -6,6 +6,7 @@
     <title>@yield('title', 'TelecomCabinet Pro')</title>
     @vite([
         'resources/css/app.css',
+        'resources/css/modals.css',
         'resources/js/app.js'
     ])
     @stack('styles')

@@ -6,6 +6,7 @@
     <title><?php echo $__env->yieldContent('title', 'TelecomCabinet Pro'); ?></title>
     <?php echo app('Illuminate\Foundation\Vite')([
         'resources/css/app.css',
+        'resources/css/modals.css',
         'resources/js/app.js'
     ]); ?>
     <?php echo $__env->yieldPushContent('styles'); ?>

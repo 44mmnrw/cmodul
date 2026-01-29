@@ -1,15 +1,15 @@
-@extends('layout')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="content-wrapper">
     <!-- Type Switcher -->
     <div class="type-switcher">
-        <a href="{{ route('configurations.index', ['type' => 1]) }}" 
-           class="type-switcher-btn {{ $currentType == 1 ? 'active' : '' }}">
+        <a href="<?php echo e(route('configurations.index', ['type' => 1])); ?>" 
+           class="type-switcher-btn <?php echo e($currentType == 1 ? 'active' : ''); ?>">
             Конфигурации шкафов
         </a>
-        <a href="{{ route('configurations.index', ['type' => 2]) }}" 
-           class="type-switcher-btn {{ $currentType == 2 ? 'active' : '' }}">
+        <a href="<?php echo e(route('configurations.index', ['type' => 2])); ?>" 
+           class="type-switcher-btn <?php echo e($currentType == 2 ? 'active' : ''); ?>">
             Конфигурации мест
         </a>
     </div>
@@ -19,22 +19,22 @@
         <div class="config-header-content">
             <div class="title-section">
                 <h1 class="page-title">
-                    @if($currentType == 1)
+                    <?php if($currentType == 1): ?>
                         Конфигурации шкафов
-                    @else
+                    <?php else: ?>
                         Комплектующие
-                    @endif
+                    <?php endif; ?>
                 </h1>
                 <p class="page-subtitle">
-                    @if($currentType == 1)
+                    <?php if($currentType == 1): ?>
                         Управление готовыми конфигурациями шкафов
-                    @else
+                    <?php else: ?>
                         Управление доступными комплектующими
-                    @endif
+                    <?php endif; ?>
                 </p>
             </div>
         </div>
-        <button onclick="window.location.href='{{ route('configurations.create', ['type' => $currentType]) }}'" class="btn-primary btn-create-config">
+        <button onclick="window.location.href='<?php echo e(route('configurations.create', ['type' => $currentType])); ?>'" class="btn-primary btn-create-config">
             <svg class="btn-icon">
                 <use xlink:href="#icon-plus"></use>
             </svg>
@@ -48,7 +48,7 @@
         <div class="config-stat-card">
             <div class="stat-content">
                 <p class="stat-label">Всего конфигураций</p>
-                <p class="stat-value">{{ method_exists($cabinets, 'total') ? $cabinets->total() : count($cabinets) }}</p>
+                <p class="stat-value"><?php echo e(method_exists($cabinets, 'total') ? $cabinets->total() : count($cabinets)); ?></p>
             </div>
             <div class="stat-icon stat-icon-blue">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -61,7 +61,7 @@
         <div class="config-stat-card">
             <div class="stat-content">
                 <p class="stat-label">Доступно</p>
-                <p class="stat-value stat-value-success">{{ method_exists($cabinets, 'total') ? $cabinets->total() : count($cabinets) }}</p>
+                <p class="stat-value stat-value-success"><?php echo e(method_exists($cabinets, 'total') ? $cabinets->total() : count($cabinets)); ?></p>
             </div>
             <div class="stat-icon stat-icon-green">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -114,14 +114,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($cabinets as $cabinet)
+                    <?php $__empty_1 = true; $__currentLoopData = $cabinets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cabinet): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
                         <td>
                             <div class="config-cell">
-                                <a href="/configurations/{{ $cabinet->id }}" class="config-name-link" style="text-decoration: none; color: inherit; cursor: pointer;">
-                                    <div class="config-name">{{ $cabinet->name }}</div>
-                                    <div class="config-code">{{ $cabinet->scu }}</div>
-                                    <div class="config-description">{{ $cabinet->description ?? 'Описание конфигурации' }}</div>
+                                <a href="/configurations/<?php echo e($cabinet->id); ?>" class="config-name-link" style="text-decoration: none; color: inherit; cursor: pointer;">
+                                    <div class="config-name"><?php echo e($cabinet->name); ?></div>
+                                    <div class="config-code"><?php echo e($cabinet->scu); ?></div>
+                                    <div class="config-description"><?php echo e($cabinet->description ?? 'Описание конфигурации'); ?></div>
                                 </a>
                             </div>
                         </td>
@@ -133,7 +133,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="price">{{ $cabinet->price ?? '19 900 ₽' }}</span>
+                            <span class="price"><?php echo e($cabinet->price ?? '19 900 ₽'); ?></span>
                         </td>
                         <td>
                             <span class="status-badge status-available">
@@ -144,21 +144,21 @@
                             </span>
                         </td>
                         <td>
-                            <span class="created-date">{{ $cabinet->created_at->format('Y-m-d') ?? '2024-01-25' }}</span>
+                            <span class="created-date"><?php echo e($cabinet->created_at->format('Y-m-d') ?? '2024-01-25'); ?></span>
                         </td>
                         <td class="text-right">
                             <div class="action-buttons">
-                                <a href="/configurations/{{ $cabinet->id }}" class="action-btn btn-view" title="Просмотреть">
+                                <a href="/configurations/<?php echo e($cabinet->id); ?>" class="action-btn btn-view" title="Просмотреть">
                                     <svg class="icon">
                                         <use xlink:href="#icon-eye"></use>
                                     </svg>
                                 </a>
-                                <a href="{{ route('configurations.edit', $cabinet->id) }}" class="action-btn btn-edit" title="Редактировать">
+                                <a href="<?php echo e(route('configurations.edit', $cabinet->id)); ?>" class="action-btn btn-edit" title="Редактировать">
                                     <svg class="icon">
                                         <use xlink:href="#icon-pencil"></use>
                                     </svg>
                                 </a>
-                                <button class="action-btn btn-delete" title="Удалить" onclick="openDeleteModal(event, '/configurations/{{ $cabinet->id }}')">
+                                <button class="action-btn btn-delete" title="Удалить" onclick="openDeleteModal(event, '/configurations/<?php echo e($cabinet->id); ?>')">
                                     <svg class="icon">
                                         <use xlink:href="#icon-delete"></use>
                                     </svg>
@@ -166,92 +166,110 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="6" style="text-align: center; padding: 30px;">
                             Нет конфигураций
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
-        @if(method_exists($cabinets, 'total'))
+        <?php if(method_exists($cabinets, 'total')): ?>
         <div class="pagination-wrapper">
             <div class="pagination-info">
-                Показано {{ method_exists($cabinets, 'from') ? $cabinets->from() : 1 }}-{{ method_exists($cabinets, 'to') ? $cabinets->to() : count($cabinets) }} из {{ $cabinets->total() }} конфигураций
+                Показано <?php echo e(method_exists($cabinets, 'from') ? $cabinets->from() : 1); ?>-<?php echo e(method_exists($cabinets, 'to') ? $cabinets->to() : count($cabinets)); ?> из <?php echo e($cabinets->total()); ?> конфигураций
             </div>
             <div class="pagination-controls">
-                @if (method_exists($cabinets, 'onFirstPage') && $cabinets->onFirstPage())
+                <?php if(method_exists($cabinets, 'onFirstPage') && $cabinets->onFirstPage()): ?>
                     <button class="pagination-btn pagination-btn-disabled" disabled>
                         <svg viewBox="0 0 16 16" fill="currentColor">
                             <path d="M10.5 12.5L5 8l5.5-4.5"/>
                         </svg>
                         Назад
                     </button>
-                @elseif(method_exists($cabinets, 'previousPageUrl'))
-                    <a href="{{ $cabinets->previousPageUrl() }}" class="pagination-btn">
+                <?php elseif(method_exists($cabinets, 'previousPageUrl')): ?>
+                    <a href="<?php echo e($cabinets->previousPageUrl()); ?>" class="pagination-btn">
                         <svg viewBox="0 0 16 16" fill="currentColor">
                             <path d="M10.5 12.5L5 8l5.5-4.5"/>
                         </svg>
                         Назад
                     </a>
-                @endif
+                <?php endif; ?>
 
                 <div class="pagination-numbers">
-                    @if(method_exists($cabinets, 'currentPage'))
-                        @if ($cabinets->currentPage() > 2)
-                            <a href="{{ $cabinets->url(1) }}" class="pagination-number">1</a>
-                        @endif
+                    <?php if(method_exists($cabinets, 'currentPage')): ?>
+                        <?php if($cabinets->currentPage() > 2): ?>
+                            <a href="<?php echo e($cabinets->url(1)); ?>" class="pagination-number">1</a>
+                        <?php endif; ?>
 
-                        @if ($cabinets->currentPage() > 3)
+                        <?php if($cabinets->currentPage() > 3): ?>
                             <span class="pagination-dots">...</span>
-                        @endif
+                        <?php endif; ?>
 
-                        @foreach ($cabinets->getUrlRange(max(1, $cabinets->currentPage() - 1), min($cabinets->lastPage(), $cabinets->currentPage() + 1)) as $page => $url)
-                            @if ($page == $cabinets->currentPage())
-                                <span class="pagination-number pagination-number-active">{{ $page }}</span>
-                            @else
-                                <a href="{{ $url }}" class="pagination-number">{{ $page }}</a>
-                            @endif
-                        @endforeach
+                        <?php $__currentLoopData = $cabinets->getUrlRange(max(1, $cabinets->currentPage() - 1), min($cabinets->lastPage(), $cabinets->currentPage() + 1)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php if($page == $cabinets->currentPage()): ?>
+                                <span class="pagination-number pagination-number-active"><?php echo e($page); ?></span>
+                            <?php else: ?>
+                                <a href="<?php echo e($url); ?>" class="pagination-number"><?php echo e($page); ?></a>
+                            <?php endif; ?>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                        @if ($cabinets->currentPage() < $cabinets->lastPage() - 2)
+                        <?php if($cabinets->currentPage() < $cabinets->lastPage() - 2): ?>
                             <span class="pagination-dots">...</span>
-                        @endif
+                        <?php endif; ?>
 
-                        @if ($cabinets->currentPage() < $cabinets->lastPage() - 1)
-                            <a href="{{ $cabinets->url($cabinets->lastPage()) }}" class="pagination-number">{{ $cabinets->lastPage() }}</a>
-                        @endif
-                    @endif
+                        <?php if($cabinets->currentPage() < $cabinets->lastPage() - 1): ?>
+                            <a href="<?php echo e($cabinets->url($cabinets->lastPage())); ?>" class="pagination-number"><?php echo e($cabinets->lastPage()); ?></a>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
 
-                @if (method_exists($cabinets, 'hasMorePages') && $cabinets->hasMorePages())
-                    <a href="{{ $cabinets->nextPageUrl() }}" class="pagination-btn">
+                <?php if(method_exists($cabinets, 'hasMorePages') && $cabinets->hasMorePages()): ?>
+                    <a href="<?php echo e($cabinets->nextPageUrl()); ?>" class="pagination-btn">
                         Далее
                         <svg viewBox="0 0 16 16" fill="currentColor">
                             <path d="M5.5 12.5L11 8l-5.5-4.5"/>
                         </svg>
                     </a>
-                @else
+                <?php else: ?>
                     <button class="pagination-btn pagination-btn-disabled" disabled>
                         Далее
                         <svg viewBox="0 0 16 16" fill="currentColor">
                             <path d="M5.5 12.5L11 8l-5.5-4.5"/>
                         </svg>
                     </button>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
 <!-- Delete Modal Component -->
-<x-delete-modal 
-    warningText="Вы уверены, что хотите удалить конфигурацию?"
-    warningSubtext="Это действие невозможно отменить. Все компоненты конфигурации также будут удалены."
-/>
-@endsection
+<?php if (isset($component)) { $__componentOriginalb7eac87efb73c0c2c26fe03ec80faafd = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalb7eac87efb73c0c2c26fe03ec80faafd = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.delete-modal','data' => ['warningText' => 'Вы уверены, что хотите удалить конфигурацию?','warningSubtext' => 'Это действие невозможно отменить. Все компоненты конфигурации также будут удалены.']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('delete-modal'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['warningText' => 'Вы уверены, что хотите удалить конфигурацию?','warningSubtext' => 'Это действие невозможно отменить. Все компоненты конфигурации также будут удалены.']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalb7eac87efb73c0c2c26fe03ec80faafd)): ?>
+<?php $attributes = $__attributesOriginalb7eac87efb73c0c2c26fe03ec80faafd; ?>
+<?php unset($__attributesOriginalb7eac87efb73c0c2c26fe03ec80faafd); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalb7eac87efb73c0c2c26fe03ec80faafd)): ?>
+<?php $component = $__componentOriginalb7eac87efb73c0c2c26fe03ec80faafd; ?>
+<?php unset($__componentOriginalb7eac87efb73c0c2c26fe03ec80faafd); ?>
+<?php endif; ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Cmodul\resources\views/configurations/list.blade.php ENDPATH**/ ?>

@@ -9,6 +9,27 @@
         <div class="page-header-content">
             <h1 class="page-title">{{ $pageTitle ?? 'Список' }}</h1>
             <p class="page-subtitle">{{ $pageSubtitle ?? 'Управление элементами' }}</p>
+            
+            @if(isset($currentType) && isset($typeNames))
+            <div class="type-selector" style="margin-top: 12px;">
+                @foreach($typeNames as $typeId => $typeName)
+                    <a href="/items?type={{ $typeId }}" class="type-button {{ $currentType == $typeId ? 'active' : '' }}" style="
+                        display: inline-block;
+                        padding: 8px 16px;
+                        margin-right: 8px;
+                        border-radius: 6px;
+                        border: 1px solid #e5e7eb;
+                        background: {{ $currentType == $typeId ? '#155dfc' : '#fff' }};
+                        color: {{ $currentType == $typeId ? '#fff' : '#4a5565' }};
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;
+                        transition: all 0.2s;
+                        cursor: pointer;
+                    ">{{ $typeName }}</a>
+                @endforeach
+            </div>
+            @endif
         </div>
         @if($addButtonUrl ?? false)
             <button onclick="window.location.href='{{ $addButtonUrl }}'" class="btn-primary btn-create-config">
@@ -25,9 +46,30 @@
         <table class="details-table">
             <thead>
                 <tr>
-                    <th>Категория</th>
-                    <th>Код</th>
-                    <th>Название</th>
+                    <th>
+                        <a href="{{ $sortBaseUrl }}?sort=category_id&direction={{ $currentSort === 'category_id' && $currentDirection === 'asc' ? 'desc' : 'asc' }}" class="sortable-header">
+                            Категория
+                            @if($currentSort === 'category_id')
+                                <span class="sort-indicator">{{ $currentDirection === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ $sortBaseUrl }}?sort=scu&direction={{ $currentSort === 'scu' && $currentDirection === 'asc' ? 'desc' : 'asc' }}" class="sortable-header">
+                            Код
+                            @if($currentSort === 'scu')
+                                <span class="sort-indicator">{{ $currentDirection === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ $sortBaseUrl }}?sort=name&direction={{ $currentSort === 'name' && $currentDirection === 'asc' ? 'desc' : 'asc' }}" class="sortable-header">
+                            Название
+                            @if($currentSort === 'name')
+                                <span class="sort-indicator">{{ $currentDirection === 'asc' ? '↑' : '↓' }}</span>
+                            @endif
+                        </a>
+                    </th>
                     <th class="text-right">Остаток</th>
                     <th class="text-center">Действия</th>
                 </tr>

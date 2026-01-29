@@ -7,6 +7,13 @@
     width: 100%;
 }
 
+/* Icons */
+
+.icon-pencil {
+    width: 20px;
+    height: 20px;
+}
+
 /* Header */
 
 .config-detail-header {
@@ -320,12 +327,16 @@
 /* Component Type Badges */
 
 .component-type-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 16px;
+    white-space: nowrap;
+    min-height: 24px;
 }
 
 .component-type-blue {
@@ -454,21 +465,36 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 20px;
+    height: auto;
+    padding: 8px 0;
 }
 
 .stat-label {
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 500;
     color: #4a5565;
     line-height: 20px;
 }
 
 .stat-value {
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 600;
     color: #101828;
     line-height: 20px;
+}
+
+/* Переопределяем специфичным селектором для страницы detail */
+.config-card .stats-details .stat-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #101828;
+    line-height: 20px;
+}
+
+.stat-row-total {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 12px;
+    margin-top: 12px;
 }
 
 /* Cabinet Schema */

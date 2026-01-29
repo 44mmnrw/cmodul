@@ -6,7 +6,9 @@ use App\Models\Detail;
 use App\Models\ProductionOrder;
 use App\Models\ProductionOrderStatus;
 use App\Models\Stock;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductionPlanningController extends Controller
 {
@@ -132,21 +134,28 @@ class ProductionPlanningController extends Controller
                 $orderQty = $order->quantity_ordered;
                 $componentId = $product->id;
                 
-                if (!isset($componentRequirements[$componentId])) {
-                    $componentRequirements[$componentId] = [
-                        'component_id' => $componentId,
-                        'component_name' => $product->name,
-                        'component_scu' => $product->scu,
-                        'required_max' => 0,
-                        'in_stock' => $product->stock->available ?? 0,
-                    ];
+                // Type 2 НЕ добавляем в потребность (только его подкомпоненты Type 3)
+                // Рекурсивно разбираем его на подкомпоненты Type 3
+                foreach ($product->componentsInConfiguration as $subComponent) {
+                    $requiredPerComponent = $subComponent->pivot->quantity;
+                    $requiredForThisOrder = $orderQty * $requiredPerComponent;
+                    
+                    $subComponentId = $subComponent->id;
+                    
+                    if (!isset($componentRequirements[$subComponentId])) {
+                        $componentRequirements[$subComponentId] = [
+                            'component_id' => $subComponentId,
+                            'component_name' => $subComponent->name,
+                            'component_scu' => $subComponent->scu,
+                            'required_max' => 0,
+                            'in_stock' => $subComponent->stock->available ?? 0,
+                        ];
+                    }
+                    
+                    // Максимум требуемого подкомпонента
+                    $componentRequirements[$subComponentId]['required_max'] = 
+                        max($componentRequirements[$subComponentId]['required_max'], $requiredForThisOrder);
                 }
-                
-                // ФОРМУЛА 1 (для Type 2): Максимум требуемого
-                // Для компонента берём максимум количества по всем заказам
-                // (использование аналогично Type 1)
-                $componentRequirements[$componentId]['required_max'] = 
-                    max($componentRequirements[$componentId]['required_max'], $orderQty);
             }
         }
 
@@ -202,5 +211,165 @@ class ProductionPlanningController extends Controller
             'total_in_stock' => $totalInStock,
             'components' => $components
         ]);
+    }
+
+    /**
+     * Утвердить план и создать производственный заказ
+     * 
+     * Алгоритм:
+     * 1. Получить результаты анализа потребности (компоненты, которые нужно произвести)
+     * 2. Создать новый заказ в таблице orders
+     * 3. Для КАЖДОГО компонента из результата создать новую запись в production_orders
+     * 4. Обновить статус СТАРОГО заказа на "In Production"
+     */
+    public function approvePlan(Request $request)
+    {
+        $orderIds = $request->input('order_ids', []);
+        $components = $request->input('components', []);
+        
+        if (empty($orderIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Не выбраны заказы'
+            ], 400);
+        }
+
+        if (empty($components)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Нет данных о потребности в компонентах'
+            ], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Шаг 1: Получить выбранные production_orders (для определения исходного заказа)
+            $selectedOrders = ProductionOrder::whereIn('id', $orderIds)
+                ->with('order', 'product')
+                ->get();
+
+            if ($selectedOrders->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Производственные заказы не найдены'
+                ], 404);
+            }
+
+            // Получить старый заказ (по которому был сделан расчет плана)
+            $oldOrder = $selectedOrders->first()->order;
+            if (!$oldOrder) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Исходный заказ не найден'
+                ], 404);
+            }
+
+            // Определить тип заказа на основе КОМПОНЕНТОВ которые будут производиться
+            // Смотрим на типы компонентов в $components, а не на типы исходных заказов!
+            $componentProductTypes = collect($components)
+                ->map(fn($comp) => Detail::find($comp['component_id'])?->product_type_id)
+                ->filter()
+                ->unique();
+            
+            // ТОЛЬКО Type 1 компоненты → VO, иначе → PO
+            $isVirtualOrder = $componentProductTypes->count() === 1 && $componentProductTypes->first() === 1;
+            $orderPrefix = $isVirtualOrder ? 'VO' : 'PO';
+
+            // Шаг 2: Получить следующий номер для нового заказа
+            $lastOrder = Order::where('order_num', 'like', $orderPrefix . '%')
+                ->latest('order_num')
+                ->first();
+            
+            $lastNum = 0;
+            if ($lastOrder) {
+                $lastNum = intval(str_replace($orderPrefix . '-', '', $lastOrder->order_num));
+            }
+            $nextOrderNum = $orderPrefix . '-' . str_pad($lastNum + 1, 5, '0', STR_PAD_LEFT);
+
+            // Шаг 3: Создать новый заказ
+            $newOrder = Order::create([
+                'order_num' => $nextOrderNum,
+                'order_date' => now(),
+                'planned_date' => now(),
+                'planned_date' => now()->addDays(7),
+                'status' => 'Production',
+            ]);
+
+            // Шаг 4: Получить статус "В производстве"
+            $productionStatus = ProductionOrderStatus::where('name', 'like', '%В производстве%')
+                ->orWhere('name', 'like', '%Production%')
+                ->first();
+            
+            if (!$productionStatus) {
+                $productionStatus = ProductionOrderStatus::where('name', 'В производстве')->first();
+            }
+            
+            if (!$productionStatus) {
+                // Не создавать новый! Использовать существующий
+                $productionStatus = ProductionOrderStatus::first();
+            }
+
+            // Шаг 5: Создать production_orders для КАЖДОГО компонента, который нужно произвести
+            $newProductionOrdersCount = 0;
+            foreach ($components as $comp) {
+                // Только если нужно произвести (need_to_produce > 0)
+                if (isset($comp['need_to_produce']) && $comp['need_to_produce'] > 0) {
+                    ProductionOrder::create([
+                        'order_id' => $newOrder->id,
+                        'reference_order' => $oldOrder->order_num,  // ← reference_order = исходный заказ, не новый!
+                        'product_id' => $comp['component_id'],
+                        'quantity_ordered' => $comp['need_to_produce'],
+                        'quantity_received' => 0,
+                        'status_id' => $productionStatus->id,
+                        'planned_date' => $newOrder->planned_date,
+                        'production_num' => null,
+                    ]);
+                    $newProductionOrdersCount++;
+                }
+            }
+
+            // Если нет компонентов для производства, вернуть ошибку
+            if ($newProductionOrdersCount === 0) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Все необходимые компоненты уже есть на складе. Нечего производить.'
+                ], 400);
+            }
+
+            // Шаг 6: Обновить статус production_orders СТАРОГО заказа на "В производстве"
+            // Получить статус "В производстве"
+            $inProductionStatus = ProductionOrderStatus::where('name', 'В производстве')->first();
+            
+            if ($inProductionStatus) {
+                // Обновить status_id у всех production_orders связанных со СТАРЫМ заказом (по order_id)
+                ProductionOrder::where('order_id', $oldOrder->id)
+                    ->update(['status_id' => $inProductionStatus->id]);
+            }
+            
+            // Также обновить статус в самой таблице orders
+            $oldOrder->update([
+                'status' => 'В производстве'
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "План утвержден. Создан заказ № $nextOrderNum с $newProductionOrdersCount производственными позициями",
+                'order_id' => $newOrder->id,
+                'order_num' => $nextOrderNum,
+                'positions_count' => $newProductionOrdersCount,
+                'redirect' => route('production-orders.index')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при создании заказа: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -82,15 +82,15 @@ class Detail extends Model
     }
 
     /**
-     * Рассчитать виртуальный остаток конфигурации (Type 1)
-     * Сколько шкафов можно собрать из имеющихся компонентов
+     * Рассчитать виртуальный остаток конфигурации (Type 1 или Type 2)
+     * Сколько шкафов/компонентов можно собрать из имеющихся компонентов
      * 
-     * @return array ['quantity' => int, 'limiting_component_id' => int, 'limiting_component' => Detail]
+     * @return array ['quantity' => int, 'limiting_component_id' => int, 'limiting_component' => Detail] or null
      */
     public function getVirtualStock()
     {
-        // Работает только для Type 1
-        if ($this->product_type_id != 1) {
+        // Работает для Type 1 и Type 2 (если они содержат компоненты)
+        if ($this->product_type_id != 1 && $this->product_type_id != 2) {
             return null;
         }
 
@@ -106,8 +106,10 @@ class Detail extends Model
         $limitingComponent = null;
 
         foreach ($components as $component) {
-            // Компонент должен быть Type 2 и иметь остатки
-            if ($component->product_type_id != 2 || !$component->stock) {
+            // Для Type 1: компоненты должны быть Type 2
+            // Для Type 2: компоненты должны быть Type 3
+            $expectedType = $this->product_type_id + 1;
+            if ($component->product_type_id != $expectedType || !$component->stock) {
                 return ['quantity' => 0, 'limiting_component_id' => $component->id];
             }
 

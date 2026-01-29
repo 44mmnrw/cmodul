@@ -1,24 +1,32 @@
-@extends('layout')
 
-@section('title', $detail->name . ' - Детали')
 
-@section('content')
+<?php $__env->startSection('title', $detail->name . ' - Детали'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="detail-page">
     <!-- Header Section with Back Button -->
     <div class="page-header">
+        <div class="header-back-button">
+            <a href="<?php echo e(route('details.index')); ?>" class="btn-back">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
+                    <path fill-rule="evenodd" d="M12 19l-8-8 8-8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+
         <div class="header-content">
             <div class="header-title-row">
-                <h1 class="header-title">{{ $detail->name }}</h1>
-                @if($detail->category)
-                    <span class="category-badge">{{ $detail->category->name }}</span>
-                @endif
+                <h1 class="header-title"><?php echo e($detail->name); ?></h1>
+                <?php if($detail->category): ?>
+                    <span class="category-badge"><?php echo e($detail->category->name); ?></span>
+                <?php endif; ?>
             </div>
-            <p class="header-code">{{ $detail->scu ?? 'PROD-001' }}</p>
+            <p class="header-code"><?php echo e($detail->scu ?? 'PROD-001'); ?></p>
         </div>
         
         <!-- Action Buttons -->
         <div class="header-actions">
-            <a href="{{ route('details.edit', $detail) }}" class="btn-primary flex items-center gap-2">
+            <a href="<?php echo e(route('details.edit', $detail)); ?>" class="btn-primary flex items-center gap-2">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
                 </svg>
@@ -47,14 +55,14 @@
                                 <svg class="badge-icon" viewBox="0 0 16 16" fill="currentColor">
                                     <circle cx="8" cy="8" r="7"/>
                                 </svg>
-                                <span>{{ $detail->source->name ?? 'Не указан' }}</span>
+                                <span><?php echo e($detail->source->name ?? 'Не указан'); ?></span>
                             </div>
                             <p class="source-description">
-                                @if($detail->source && $detail->source->name === 'Покупка')
+                                <?php if($detail->source && $detail->source->name === 'Покупка'): ?>
                                     Деталь приобретается у поставщиков. Зависит от наличия на складе поставщика и сроков доставки.
-                                @else
+                                <?php else: ?>
                                     Деталь производится на собственных мощностях. Полный контроль над производственным процессом и сроками изготовления.
-                                @endif
+                                <?php endif; ?>
                             </p>
                         </div>
                     </div>
@@ -72,23 +80,23 @@
                 <div class="characteristics-grid">
                     <div class="char-item">
                         <span class="char-label">Размеры</span>
-                        <span class="char-value">{{ $detail->width }}x{{ $detail->height }}x{{ $detail->depth }}мм</span>
+                        <span class="char-value"><?php echo e($detail->width); ?>x<?php echo e($detail->height); ?>x<?php echo e($detail->depth); ?>мм</span>
                     </div>
                     <div class="char-item">
                         <span class="char-label">Материал</span>
-                        <span class="char-value">{{ $detail->material ?? 'Сталь холоднокатаная' }}</span>
+                        <span class="char-value"><?php echo e($detail->material ?? 'Сталь холоднокатаная'); ?></span>
                     </div>
                     <div class="char-item">
                         <span class="char-label">Вес</span>
-                        <span class="char-value">{{ $detail->weight }} кг</span>
+                        <span class="char-value"><?php echo e($detail->weight); ?> кг</span>
                     </div>
                     <div class="char-item">
                         <span class="char-label">Единица измерения</span>
-                        <span class="char-value">{{ $detail->scu ?? 'шт' }}</span>
+                        <span class="char-value"><?php echo e($detail->scu ?? 'шт'); ?></span>
                     </div>
                     <div class="char-item">
                         <span class="char-label">Категория</span>
-                        <span class="char-value">{{ $detail->category->name ?? 'Общее' }}</span>
+                        <span class="char-value"><?php echo e($detail->category->name ?? 'Общее'); ?></span>
                     </div>
                 </div>
             </div>
@@ -117,29 +125,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($detail->usedInCabinets as $cabinet)
-                                <tr class="place-row" onclick="window.location.href = '{{ route('details.show', $cabinet) }}';" style="cursor: pointer;">
+                            <?php $__empty_1 = true; $__currentLoopData = $detail->usedInCabinets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cabinet): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <tr class="place-row" onclick="window.location.href = '<?php echo e(route('details.show', $cabinet)); ?>';" style="cursor: pointer;">
                                     <td>
                                         <span class="type-badge">Боковая панель</span>
                                     </td>
                                     <td>
                                         <div class="component-info">
-                                            <div class="component-name">{{ $cabinet->name }}</div>
-                                            <span class="component-code">{{ $cabinet->scu }}</span>
+                                            <div class="component-name"><?php echo e($cabinet->name); ?></div>
+                                            <span class="component-code"><?php echo e($cabinet->scu); ?></span>
                                         </div>
                                     </td>
-                                    <td class="center">{{ $cabinet->pivot->quantity }} шт</td>
+                                    <td class="center"><?php echo e($cabinet->pivot->quantity); ?> шт</td>
                                     <td class="center">120 шт</td>
                                     <td class="center">480 шт</td>
-                                    <td class="right">{{ number_format($cabinet->price ?? 0, 0, ',', ' ') }} ₽</td>
+                                    <td class="right"><?php echo e(number_format($cabinet->price ?? 0, 0, ',', ' ')); ?> ₽</td>
                                 </tr>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
                                     <td colspan="6" class="text-center text-muted">
                                         Деталь не используется в компонентах
                                     </td>
                                 </tr>
-                            @endforelse
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -223,11 +231,11 @@
                 <div class="cost-list">
                     <div class="cost-row">
                         <span class="cost-label">Цена за шт:</span>
-                        <span class="cost-value">{{ number_format($detail->price ?? 420, 0, ',', ' ') }} ₽</span>
+                        <span class="cost-value"><?php echo e(number_format($detail->price ?? 420, 0, ',', ' ')); ?> ₽</span>
                     </div>
                     <div class="cost-row divider">
                         <span class="cost-label">Цена за кг:</span>
-                        <span class="cost-value">{{ number_format($detail->price_per_kg ?? 350, 2, ',', ' ') }} ₽</span>
+                        <span class="cost-value"><?php echo e(number_format($detail->price_per_kg ?? 350, 2, ',', ' ')); ?> ₽</span>
                     </div>
                 </div>
             </div>
@@ -244,7 +252,7 @@
                 <div class="stats-list">
                     <div class="stat-row">
                         <span class="stat-label">Компонентов:</span>
-                        <span class="stat-value">{{ $detail->componentsInConfiguration->count() }}</span>
+                        <span class="stat-value"><?php echo e($detail->componentsInConfiguration->count()); ?></span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Зарезервировано:</span>
@@ -252,7 +260,7 @@
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Дата создания:</span>
-                        <span class="stat-value">{{ $detail->created_at->format('Y-m-d') }}</span>
+                        <span class="stat-value"><?php echo e($detail->created_at->format('Y-m-d')); ?></span>
                     </div>
                     <div class="stat-row">
                         <span class="stat-label">Источник:</span>
@@ -272,8 +280,8 @@
                                 <path d="M32 12L12 22v20c0 10 20 16 20 16s20-6 20-16V22L32 12z" fill="none" stroke="currentColor" stroke-width="2"/>
                             </svg>
                         </div>
-                        <span class="vis-label">{{ $detail->category->name ?? 'Металл' }}</span>
-                        <span class="vis-unit">{{ $detail->scu ?? 'шт' }}</span>
+                        <span class="vis-label"><?php echo e($detail->category->name ?? 'Металл'); ?></span>
+                        <span class="vis-unit"><?php echo e($detail->scu ?? 'шт'); ?></span>
                     </div>
                 </div>
             </div>
@@ -281,4 +289,6 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Cmodul\resources\views/details/show.blade.php ENDPATH**/ ?>

@@ -47,6 +47,9 @@ class ConfigController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
+                'components' => 'nullable|array',
+                'components.*.id' => 'integer|exists:products,id',
+                'components.*.quantity' => 'integer|min:1',
             ]);
 
             $component = Detail::create([
@@ -55,6 +58,21 @@ class ConfigController extends Controller
                 'scu' => $this->generateSCU(),
                 'product_type_id' => 2,
             ]);
+
+            // Добавляем sub-компоненты в таблицу configs
+            // master_id = id компонента, slave_id = id sub-компонента
+            $components = $request->input('components', []);
+            if (!empty($components) && is_array($components)) {
+                foreach ($components as $comp) {
+                    if (isset($comp['id']) && isset($comp['quantity'])) {
+                        Config::create([
+                            'master_id' => $component->id,
+                            'slave_id' => $comp['id'],
+                            'quantity' => $comp['quantity'],
+                        ]);
+                    }
+                }
+            }
 
             return redirect()->route('configurations.index', ['type' => 2])
                 ->with('success', 'Компонент успешно создан');
@@ -122,28 +140,18 @@ class ConfigController extends Controller
         // Получим все типы продуктов
         $productTypes = \App\Models\ProductType::all();
         
-        // Если это конфигурация (тип 1)
-        if ($detail->product_type_id == 1) {
-            // Получим текущие компоненты в конфигурации с их количествами
-            $currentComponents = $detail->componentsInConfiguration()
-                ->withPivot('quantity')
-                ->get();
-            
-            return view('configurations.edit', [
-                'cabinet' => $detail,
-                'availableComponents' => $availableComponents,
-                'currentComponents' => $currentComponents,
-                'productTypes' => $productTypes,
-            ]);
-        } else {
-            // Если это комплектующее (тип 2), используем ту же форму
-            return view('configurations.edit', [
-                'cabinet' => $detail,
-                'availableComponents' => $availableComponents,
-                'currentComponents' => collect([]),
-                'productTypes' => $productTypes,
-            ]);
-        }
+        // Получим текущие компоненты в конфигурации/компоненте с их количествами
+        // Работает одинаково для Type 1 и Type 2
+        $currentComponents = $detail->componentsInConfiguration()
+            ->withPivot('quantity')
+            ->get();
+        
+        return view('configurations.edit', [
+            'cabinet' => $detail,
+            'availableComponents' => $availableComponents,
+            'currentComponents' => $currentComponents,
+            'productTypes' => $productTypes,
+        ]);
     }
 
     /**
@@ -182,11 +190,14 @@ class ConfigController extends Controller
             // Синхронизируем связи
             $detail->componentsInConfiguration()->sync($componentData);
         } else {
-            // Если это комплектующее (тип 2), просто обновляем основные поля
+            // Если это комплектующее (тип 2), обновляем основные поля И компоненты
             $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'price' => 'nullable|numeric|min:0',
+                'components' => 'nullable|array',
+                'components.*.id' => 'integer|exists:products,id',
+                'components.*.quantity' => 'integer|min:1',
             ]);
 
             $detail->update([
@@ -194,6 +205,19 @@ class ConfigController extends Controller
                 'description' => $request->description,
                 'price' => $request->price,
             ]);
+
+            // Сохраняем компоненты Type 2
+            $componentData = [];
+            if ($request->components) {
+                foreach ($request->components as $component) {
+                    if (isset($component['id']) && isset($component['quantity'])) {
+                        $componentData[$component['id']] = ['quantity' => $component['quantity']];
+                    }
+                }
+            }
+
+            // Синхронизируем связи
+            $detail->componentsInConfiguration()->sync($componentData);
         }
 
         // Определяем куда перенаправить

@@ -6,14 +6,6 @@ $submitText = $isEdit ? 'Сохранить' : 'Добавить деталь';
 <div class="detail-form-page">
     <!-- Page Header -->
     <div class="page-header">
-        <div class="header-back-button">
-            <a href="{{ $backRoute }}" class="btn-back">
-                <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
-                    <path fill-rule="evenodd" d="M12 19l-8-8 8-8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </a>
-        </div>
-
         <div class="header-content">
             <div class="header-title-row">
                 <h1 class="header-title">{{ $title }}</h1>
@@ -51,13 +43,24 @@ $submitText = $isEdit ? 'Сохранить' : 'Добавить деталь';
                     <h3 class="section-title">Основная информация</h3>
                 </div>
                 
-                <div class="form-group">
-                    <label for="name" class="form-label">Название *</label>
-                    <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
-                           value="{{ old('name', $isEdit ? $detail->name : '') }}" placeholder="Например: Профиль монтажный 2U" required>
-                    @error('name')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Название *</label>
+                        <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
+                               value="{{ old('name', $isEdit ? $detail->name : '') }}" placeholder="Например: Профиль монтажный 2U" required>
+                        @error('name')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scu" class="form-label">SCU (код) *</label>
+                        <input type="text" id="scu" name="scu" class="form-control @error('scu') is-invalid @enderror"
+                               value="{{ old('scu', $isEdit ? $detail->scu : '') }}" placeholder="Артикул" required>
+                        @error('scu')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -77,6 +80,21 @@ $submitText = $isEdit ? 'Сохранить' : 'Добавить деталь';
                     </div>
 
                     <div class="form-group">
+                        <label for="product_type_id" class="form-label">Тип</label>
+                        <select id="product_type_id" name="product_type_id" class="form-control @error('product_type_id') is-invalid @enderror">
+                            <option value="">Не указан</option>
+                            @foreach($productTypes as $type)
+                                <option value="{{ $type->id }}" {{ old('product_type_id', $isEdit ? $detail->product_type_id : '') == $type->id ? 'selected' : '' }}>
+                                    {{ $type->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('product_type_id')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
                         <label for="source_id" class="form-label">Источник</label>
                         <select id="source_id" name="source_id" class="form-control @error('source_id') is-invalid @enderror">
                             <option value="">Не указан</option>
@@ -87,15 +105,6 @@ $submitText = $isEdit ? 'Сохранить' : 'Добавить деталь';
                             @endforeach
                         </select>
                         @error('source_id')
-                            <span class="error-message">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="scu" class="form-label">Единица измерения *</label>
-                        <input type="text" id="scu" name="scu" class="form-control @error('scu') is-invalid @enderror"
-                               value="{{ old('scu', $isEdit ? $detail->scu : 'шт') }}" placeholder="шт, кг, л и т.д." required>
-                        @error('scu')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
                     </div>

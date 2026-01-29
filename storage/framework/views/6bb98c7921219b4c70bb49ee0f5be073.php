@@ -1,10 +1,10 @@
-@php
+<?php
 $isEdit = !is_null($cabinet);
 $productType = $productType ?? 1; // Дефолт на тип 1 (конфигурация)
 $pageTitle = $isEdit ? 'Редактировать конфигурацию' : 'Добавить конфигурацию';
 $isComponent = ($isEdit && $cabinet->product_type_id == 2) || (!$isEdit && $productType == 2);
 $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->product_type_id == 1);
-@endphp
+?>
 
 <div class="config-edit-wrapper">
     <!-- Header Section -->
@@ -15,22 +15,22 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
             </svg>
         </button>
         <div class="config-edit-header-content">
-            <h1 class="config-edit-title">{{ $pageTitle }}</h1>
+            <h1 class="config-edit-title"><?php echo e($pageTitle); ?></h1>
             <div class="config-edit-meta">
-                <span class="config-code">{{ $isEdit ? $cabinet->scu : 'Новая конфигурация' }}</span>
+                <span class="config-code"><?php echo e($isEdit ? $cabinet->scu : 'Новая конфигурация'); ?></span>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="config-edit-container">
-        <form method="POST" action="{{ $action }}" class="config-edit-form">
-            @csrf
-            @if($isEdit)
-                @method('PUT')
-            @else
-                <input type="hidden" name="type" value="{{ $productType }}">
-            @endif
+        <form method="POST" action="<?php echo e($action); ?>" class="config-edit-form">
+            <?php echo csrf_field(); ?>
+            <?php if($isEdit): ?>
+                <?php echo method_field('PUT'); ?>
+            <?php else: ?>
+                <input type="hidden" name="type" value="<?php echo e($productType); ?>">
+            <?php endif; ?>
 
             <!-- Left Column -->
             <div class="config-edit-left">
@@ -49,12 +49,19 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
                             id="name" 
                             name="name" 
                             class="form-control" 
-                            value="{{ old('name', $isEdit ? $cabinet->name : '') }}"
+                            value="<?php echo e(old('name', $isEdit ? $cabinet->name : '')); ?>"
                             required
                         >
-                        @error('name')
-                            <span class="form-error">{{ $message }}</span>
-                        @enderror
+                        <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <span class="form-error"><?php echo e($message); ?></span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <div class="form-group">
@@ -63,19 +70,28 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
                             id="product_type_id" 
                             name="product_type_id" 
                             class="form-control"
-                            {{ $isEdit ? 'disabled' : '' }}
+                            <?php echo e($isEdit ? 'disabled' : ''); ?>
+
                             required
                         >
                             <option value="">Выберите тип...</option>
-                            @foreach($productTypes as $pt)
-                                <option value="{{ $pt->id }}" {{ (old('product_type_id', $isEdit ? $cabinet->product_type_id : $productType) == $pt->id) ? 'selected' : '' }}>
-                                    {{ $pt->name }}
+                            <?php $__currentLoopData = $productTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($pt->id); ?>" <?php echo e((old('product_type_id', $isEdit ? $cabinet->product_type_id : $productType) == $pt->id) ? 'selected' : ''); ?>>
+                                    <?php echo e($pt->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
-                        @error('product_type_id')
-                            <span class="form-error">{{ $message }}</span>
-                        @enderror
+                        <?php $__errorArgs = ['product_type_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <span class="form-error"><?php echo e($message); ?></span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <div class="form-group">
@@ -85,18 +101,25 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
                             name="description" 
                             class="form-control form-textarea" 
                             rows="4"
-                        >{{ old('description', $isEdit ? $cabinet->description : '') }}</textarea>
-                        @error('description')
-                            <span class="form-error">{{ $message }}</span>
-                        @enderror
+                        ><?php echo e(old('description', $isEdit ? $cabinet->description : '')); ?></textarea>
+                        <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <span class="form-error"><?php echo e($message); ?></span>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
-                    @if($isEdit)
+                    <?php if($isEdit): ?>
                     <div class="form-group">
                         <label class="form-label">SCU (код)</label>
-                        <div class="form-control-static">{{ $cabinet->scu }}</div>
+                        <div class="form-control-static"><?php echo e($cabinet->scu); ?></div>
                     </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -108,32 +131,32 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
                         <svg class="card-icon" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
                         </svg>
-                        <h3 class="card-title">{{ $isConfiguration ? 'Компоненты конфигурации' : 'Компоненты' }}</h3>
+                        <h3 class="card-title"><?php echo e($isConfiguration ? 'Компоненты конфигурации' : 'Компоненты'); ?></h3>
                     </div>
 
                     <div class="components-edit-section">
                         <!-- Current Components -->
-                        @if($isEdit)
+                        <?php if($isEdit): ?>
                         <div class="current-components">
                             <h4 class="section-subtitle">Текущие компоненты</h4>
                             <div id="components-list" class="components-list">
-                                @forelse($currentComponents as $index => $component)
-                                    <div class="component-edit-item" data-component-id="{{ $component->id }}">
+                                <?php $__empty_1 = true; $__currentLoopData = $currentComponents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <div class="component-edit-item" data-component-id="<?php echo e($component->id); ?>">
                                         <div class="component-edit-info">
-                                            <div class="component-edit-name">{{ $component->name }}</div>
-                                            <div class="component-edit-code">{{ $component->scu }}</div>
+                                            <div class="component-edit-name"><?php echo e($component->name); ?></div>
+                                            <div class="component-edit-code"><?php echo e($component->scu); ?></div>
                                         </div>
                                         <div class="component-edit-quantity">
                                             <input 
                                                 type="hidden" 
-                                                name="components[{{ $index }}][id]" 
-                                                value="{{ $component->id }}"
+                                                name="components[<?php echo e($index); ?>][id]" 
+                                                value="<?php echo e($component->id); ?>"
                                             >
                                             <input 
                                                 type="number" 
-                                                name="components[{{ $index }}][quantity]" 
+                                                name="components[<?php echo e($index); ?>][quantity]" 
                                                 class="component-qty-input" 
-                                                value="{{ $component->pivot->quantity }}"
+                                                value="<?php echo e($component->pivot->quantity); ?>"
                                                 min="1"
                                                 required
                                             >
@@ -145,20 +168,20 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
                                             </svg>
                                         </button>
                                     </div>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <div class="empty-state">
                                         <p>Компоненты не добавлены</p>
                                     </div>
-                                @endforelse
+                                <?php endif; ?>
                             </div>
                         </div>
-                        @else
+                        <?php else: ?>
                         <div id="components-list" class="components-list">
                             <div class="empty-state">
                                 <p>Компоненты будут добавлены ниже</p>
                             </div>
                         </div>
-                        @endif
+                        <?php endif; ?>
 
                         <!-- Add Components -->
                         <div class="add-components">
@@ -166,11 +189,11 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
                             <div class="add-component-form">
                                 <select id="component-select" class="form-control">
                                     <option value="">Выберите компонент...</option>
-                                    @foreach($availableComponents as $component)
-                                        <option value="{{ $component->id }}" data-name="{{ $component->name }}" data-scu="{{ $component->scu }}" data-type="{{ $component->product_type_id }}">
-                                            {{ $component->name }} ({{ $component->scu }})
+                                    <?php $__currentLoopData = $availableComponents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($component->id); ?>" data-name="<?php echo e($component->name); ?>" data-scu="<?php echo e($component->scu); ?>" data-type="<?php echo e($component->product_type_id); ?>">
+                                            <?php echo e($component->name); ?> (<?php echo e($component->scu); ?>)
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                                 <input 
                                     type="number" 
@@ -193,14 +216,15 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
 
                 <!-- Action Buttons -->
                 <div class="config-edit-actions">
-                    <a href="{{ $backRoute }}" class="btn btn-secondary">
+                    <a href="<?php echo e($backRoute); ?>" class="btn btn-secondary">
                         Отмена
                     </a>
                     <button type="submit" class="btn btn-success">
                         <svg viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                         </svg>
-                        {{ $isEdit ? 'Сохранить изменения' : 'Создать конфигурацию' }}
+                        <?php echo e($isEdit ? 'Сохранить изменения' : 'Создать конфигурацию'); ?>
+
                     </button>
                 </div>
             </div>
@@ -408,3 +432,4 @@ $isConfiguration = (!$isEdit && $productType == 1) || ($isEdit && $cabinet->prod
         }
     }
 </script>
+<?php /**PATH C:\laragon\www\Cmodul\resources\views/configurations/_form.blade.php ENDPATH**/ ?>
